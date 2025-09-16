@@ -3,1071 +3,700 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PMA - Porte Monnaie Avoir</title>
+    <title>PMA - Paiement Mobile Afrique</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        
-        .gradient-bg { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        
-        .gradient-success {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-        
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-2px);
+        .card-shadow {
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
-        
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
+        .animate-pulse-slow {
+            animation: pulse 3s infinite;
         }
-        
-        .notification.show {
-            transform: translateX(0);
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
-        .balance-card {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-        
-        .points-card {
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-        }
-
-        .ad-banner {
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
         }
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Login Screen -->
-    <div id="loginScreen" class="min-h-screen gradient-bg flex items-center justify-center px-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
-            <div class="text-center mb-8">
-                <div class="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <span class="text-white font-bold text-2xl">💰</span>
-                </div>
-                <h1 class="text-2xl font-bold text-gray-800">PMA</h1>
-                <p class="text-gray-600">Porte Monnaie Avoir</p>
-            </div>
-
-            <!-- Login/Register Toggle -->
-            <div class="flex mb-6 bg-gray-100 rounded-lg p-1">
-                <button id="loginTab" onclick="showLogin()" class="flex-1 py-2 px-4 rounded-md font-medium transition-all bg-white text-purple-600 shadow-sm">
-                    Connexion
-                </button>
-                <button id="registerTab" onclick="showRegister()" class="flex-1 py-2 px-4 rounded-md font-medium transition-all text-gray-600">
-                    Inscription
-                </button>
-            </div>
-
-            <!-- Login Form -->
-            <div id="loginForm">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Type de compte</label>
-                        <select id="loginUserType" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                            <option value="client">Client</option>
-                            <option value="merchant">Commerçant</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
-                        <input type="tel" id="loginPhone" placeholder="+225 XX XX XX XX" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
-                        <input type="password" id="loginPassword" placeholder="••••••••" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    </div>
-                    <button onclick="login()" class="w-full gradient-bg text-white font-medium py-3 rounded-lg hover:opacity-90 transition-opacity">
-                        Se connecter
-                    </button>
-                </div>
-            </div>
-
-            <!-- Register Form -->
-            <div id="registerForm" style="display: none;">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Type de compte</label>
-                        <select id="registerUserType" onchange="toggleShopField()" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                            <option value="client">Client</option>
-                            <option value="merchant">Commerçant</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
-                        <input type="text" id="registerName" placeholder="Votre nom complet" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
-                        <input type="tel" id="registerPhone" placeholder="+225 XX XX XX XX" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    </div>
-                    <div id="shopNameField" style="display: none;">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nom de la boutique</label>
-                        <input type="text" id="registerShopName" placeholder="Nom de votre boutique" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
-                        <input type="password" id="registerPassword" placeholder="••••••••" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Confirmer mot de passe</label>
-                        <input type="password" id="registerConfirmPassword" placeholder="••••••••" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    </div>
-                    <button onclick="register()" class="w-full gradient-bg text-white font-medium py-3 rounded-lg hover:opacity-90 transition-opacity">
-                        S'inscrire
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Navigation -->
-    <nav id="mainNav" class="gradient-bg shadow-lg" style="display: none;">
-        <div class="max-w-6xl mx-auto px-4 py-4">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                        <span class="text-white font-bold text-lg">💰</span>
-                    </div>
-                    <div>
-                        <h1 class="text-white font-bold text-xl">PMA</h1>
-                        <p class="text-white/80 text-xs">Porte Monnaie Avoir</p>
-                    </div>
+    <nav class="gradient-bg text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                    <span class="text-purple-600 font-bold text-lg">P</span>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="text-white text-sm">
-                        <div id="currentUser" class="font-medium">Utilisateur</div>
-                        <div id="currentUserType" class="text-white/80 text-xs">Client</div>
-                    </div>
-                    <button onclick="logout()" class="bg-white/20 text-white border border-white/30 rounded-lg px-3 py-2 text-sm hover:bg-white/30 transition-colors">
-                        Déconnexion
-                    </button>
-                </div>
+                <h1 class="text-xl font-bold">PMA</h1>
+            </div>
+            <div id="userInfo" class="hidden">
+                <span id="userName" class="mr-4"></span>
+                <button onclick="logout()" class="bg-white text-purple-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                    Déconnexion
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- Ad Banner (for clients) -->
-    <div id="adBanner" class="ad-banner text-white p-4 text-center" style="display: none;">
-        <div class="max-w-6xl mx-auto">
-            <div class="flex items-center justify-center space-x-3">
-                <span class="text-2xl">🎉</span>
-                <div>
-                    <p class="font-bold" id="adTitle">Promotion Spéciale !</p>
-                    <p class="text-sm" id="adText">-20% sur tous les produits chez SuperMarché Plus</p>
+    <!-- Page de connexion -->
+    <div id="loginPage" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl card-shadow p-8 w-full max-w-md slide-in">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-white font-bold text-2xl">P</span>
                 </div>
-                <span class="text-xs bg-white/20 px-2 py-1 rounded">Pub</span>
+                <h2 class="text-2xl font-bold text-gray-800">Connexion PMA</h2>
+                <p class="text-gray-600 mt-2">Paiement Mobile Afrique</p>
+            </div>
+
+            <form onsubmit="login(event)" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Numéro de téléphone</label>
+                    <input type="tel" id="phone" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                           placeholder="+225 XX XX XX XX">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Code PIN</label>
+                    <input type="password" id="pin" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                           placeholder="Votre code PIN">
+                </div>
+
+                <button type="submit" 
+                        class="w-full gradient-bg text-white py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                    Se connecter
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-600">Comptes de démonstration :</p>
+                <div class="mt-2 text-xs text-gray-500">
+                    <p>Commerçant: +22512345678 / admin123</p>
+                    <p>Client: +22501234567 / 123456</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Merchant Dashboard -->
-    <div id="merchantDashboard" class="max-w-6xl mx-auto px-4 py-8" style="display: none;">
-        <!-- Stats Cards -->
-        <div class="grid md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm">Total Avoirs</p>
-                        <p id="totalAvoirs" class="text-2xl font-bold text-gray-800">125,500 FCFA</p>
-                    </div>
-                    <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center">
-                        <span class="text-white text-xl">💳</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm">Clients Inscrits</p>
-                        <p id="registeredClients" class="text-2xl font-bold text-gray-800">47</p>
-                    </div>
-                    <div class="w-12 h-12 gradient-success rounded-xl flex items-center justify-center">
-                        <span class="text-white text-xl">👥</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
-                <div>
-                    <p class="text-gray-600 text-sm">Abonnement Pub</p>
-                    <p id="subscriptionStatus2" class="text-2xl font-bold text-gray-800">Inactif</p>
-                </div>
-            </div>
-            
-            <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
-                <div>
-                    <p class="text-gray-600 text-sm">Pubs Cette Semaine</p>
-                    <p id="weeklyAds" class="text-2xl font-bold text-gray-800">0/3</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="grid md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-lg">
-                <h3 class="font-bold text-lg mb-4 flex items-center">
-                    <span class="mr-2">➕</span>
-                    Créer un Avoir
-                </h3>
-                <div class="space-y-4">
-                    <input type="tel" id="clientPhone" placeholder="Numéro de téléphone" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    <input type="number" id="avoirAmount" placeholder="Montant (FCFA)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    <button onclick="createAvoir()" class="w-full gradient-bg text-white font-medium py-3 rounded-lg hover:opacity-90 transition-opacity">
-                        Créer l'Avoir
-                    </button>
-                </div>
+    <!-- Dashboard Commerçant -->
+    <div id="merchantDashboard" class="hidden min-h-screen">
+        <div class="container mx-auto p-6">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Dashboard Commerçant</h2>
+                <p class="text-gray-600">Gérez vos paiements et transactions</p>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-lg">
-                <h3 class="font-bold text-lg mb-4 flex items-center">
-                    <span class="mr-2">💰</span>
-                    Traiter un Paiement
-                </h3>
-                <div class="space-y-4">
-                    <input type="tel" id="paymentPhone" placeholder="Numéro client" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    <input type="number" id="paymentAmount" placeholder="Montant à payer" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    <button onclick="processPayment()" class="w-full gradient-success text-white font-medium py-3 rounded-lg hover:opacity-90 transition-opacity">
-                        Traiter le Paiement
-                    </button>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-lg">
-                <h3 class="font-bold text-lg mb-4 flex items-center">
-                    <span class="mr-2">📢</span>
-                    Abonnement Pub
-                </h3>
-                <div class="space-y-4">
-                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-4 rounded-lg">
-                        <h4 class="font-bold text-purple-800 mb-2">Pack Publicitaire</h4>
-                        <p class="text-sm text-purple-700 mb-2">✨ 3 publicités par semaine</p>
-                        <p class="text-sm text-purple-700 mb-2">📱 Diffusion sur tous les clients</p>
-                        <p class="text-2xl font-bold text-purple-800">15,000 FCFA/mois</p>
-                    </div>
-                    <div id="subscriptionStatus" class="text-center">
-                        <!-- Subscription status will be shown here -->
-                    </div>
-                    <button id="subscribeBtn" onclick="subscribeToAds()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium py-3 rounded-lg hover:opacity-90 transition-opacity">
-                        S'abonner Maintenant
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Client Database -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <h3 class="font-bold text-lg mb-4 flex items-center">
-                <span class="mr-2">👥</span>
-                Base de Données Clients
-            </h3>
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="border-b border-gray-200">
-                            <th class="text-left py-3 px-4 font-medium text-gray-600">Nom</th>
-                            <th class="text-left py-3 px-4 font-medium text-gray-600">Téléphone</th>
-                            <th class="text-left py-3 px-4 font-medium text-gray-600">Avoir</th>
-                            <th class="text-left py-3 px-4 font-medium text-gray-600">Points</th>
-                            <th class="text-left py-3 px-4 font-medium text-gray-600">Inscription</th>
-                        </tr>
-                    </thead>
-                    <tbody id="clientDatabase">
-                        <!-- Client data will be populated here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Create Ad Form (only if subscribed) -->
-        <div id="createAdSection" class="bg-white rounded-xl shadow-lg p-6 mb-6" style="display: none;">
-            <h3 class="font-bold text-lg mb-4 flex items-center">
-                <span class="mr-2">✨</span>
-                Créer une Publicité
-            </h3>
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <input type="text" id="adTitleInput" placeholder="Titre de la pub" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    <textarea id="adTextInput" placeholder="Texte de la pub" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"></textarea>
-                    <select id="adCategory" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                        <option value="">Catégorie</option>
-                        <option value="promotion">Promotion</option>
-                        <option value="nouveau">Nouveau produit</option>
-                        <option value="service">Service</option>
-                        <option value="evenement">Événement</option>
-                    </select>
-                </div>
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h4 class="font-medium mb-3">Aperçu de la pub</h4>
-                    <div class="ad-banner text-white p-3 rounded-lg text-center">
-                        <div class="flex items-center justify-center space-x-2">
-                            <span class="text-xl">🎉</span>
-                            <div>
-                                <p class="font-bold text-sm" id="previewTitle">Votre titre ici</p>
-                                <p class="text-xs" id="previewText">Votre texte ici</p>
-                            </div>
-                            <span class="text-xs bg-white/20 px-2 py-1 rounded">Pub</span>
+            <!-- Statistiques -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Solde Total</p>
+                            <p class="text-2xl font-bold text-green-600" id="merchantBalance">2,450,000 FCFA</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <span class="text-green-600 text-xl">💰</span>
                         </div>
                     </div>
-                    <div class="mt-3 text-sm text-gray-600">
-                        <p>📊 Pubs restantes cette semaine: <span id="remainingAds" class="font-bold">3</span></p>
+                </div>
+
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Transactions Aujourd'hui</p>
+                            <p class="text-2xl font-bold text-blue-600">47</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-blue-600 text-xl">📊</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Revenus du Mois</p>
+                            <p class="text-2xl font-bold text-purple-600">8,750,000 FCFA</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                            <span class="text-purple-600 text-xl">📈</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <button onclick="createAd()" class="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium py-3 rounded-lg hover:opacity-90 transition-opacity">
-                Publier la Publicité
-            </button>
-        </div>
 
-        <!-- Ad Management -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="font-bold text-lg mb-4 flex items-center">
-                <span class="mr-2">📊</span>
-                Mes Publicités
-            </h3>
-            <div id="adsList" class="space-y-4">
-                <!-- Ads will be populated here -->
+            <!-- Actions rapides -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Générer un QR Code</h3>
+                    <div class="space-y-4">
+                        <input type="number" id="qrAmount" placeholder="Montant (FCFA)" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                        <input type="text" id="qrDescription" placeholder="Description (optionnel)" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                        <button onclick="generateQR()" 
+                                class="w-full gradient-bg text-white py-2 rounded-lg hover:opacity-90 transition-opacity">
+                            Générer QR Code
+                        </button>
+                    </div>
+                    <div id="qrDisplay" class="mt-4 text-center hidden">
+                        <div class="w-32 h-32 bg-gray-200 mx-auto rounded-lg flex items-center justify-center">
+                            <span class="text-4xl">📱</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">QR Code généré</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Demande de Paiement</h3>
+                    <div class="space-y-4">
+                        <input type="tel" id="customerPhone" placeholder="Numéro client" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                        <input type="number" id="requestAmount" placeholder="Montant (FCFA)" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                        <button onclick="requestPayment()" 
+                                class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            Envoyer Demande
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historique des transactions -->
+            <div class="bg-white rounded-xl card-shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Transactions Récentes</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="text-left py-2">Date</th>
+                                <th class="text-left py-2">Client</th>
+                                <th class="text-left py-2">Montant</th>
+                                <th class="text-left py-2">Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionHistory">
+                            <tr class="border-b">
+                                <td class="py-2">Aujourd'hui 14:30</td>
+                                <td class="py-2">+225 01 23 45 67</td>
+                                <td class="py-2 text-green-600">+25,000 FCFA</td>
+                                <td class="py-2"><span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Confirmé</span></td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-2">Aujourd'hui 13:15</td>
+                                <td class="py-2">+225 07 89 12 34</td>
+                                <td class="py-2 text-green-600">+15,500 FCFA</td>
+                                <td class="py-2"><span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Confirmé</span></td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-2">Aujourd'hui 11:45</td>
+                                <td class="py-2">+225 05 67 89 01</td>
+                                <td class="py-2 text-green-600">+8,750 FCFA</td>
+                                <td class="py-2"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">En attente</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Client Dashboard -->
-    <div id="clientDashboard" class="max-w-4xl mx-auto px-4 py-8" style="display: none;">
-        <!-- Client Balance Cards -->
-        <div class="grid md:grid-cols-2 gap-6 mb-8">
-            <div class="balance-card p-6 rounded-xl shadow-lg text-white">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-bold text-lg">Mon Solde Total</h3>
-                    <span class="text-2xl">💰</span>
-                </div>
-                <p id="clientBalance" class="text-3xl font-bold mb-2">15,750 FCFA</p>
-                <p class="text-white/80 text-sm">Disponible dans 3 boutiques</p>
+    <!-- Dashboard Client -->
+    <div id="clientDashboard" class="hidden min-h-screen">
+        <div class="container mx-auto p-6">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Mon Portefeuille</h2>
+                <p class="text-gray-600">Gérez vos paiements mobiles</p>
             </div>
 
-            <div class="points-card p-6 rounded-xl shadow-lg text-white">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-bold text-lg">Points Fidélité</h3>
-                    <span class="text-2xl">⭐</span>
+            <!-- Solde principal -->
+            <div class="bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl text-white p-8 mb-8 card-shadow">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-purple-100 mb-2">Solde disponible</p>
+                        <p class="text-4xl font-bold" id="clientBalance">125,750 FCFA</p>
+                        <p class="text-purple-100 mt-2">+225 01 23 45 67</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                            <span class="text-2xl">💳</span>
+                        </div>
+                    </div>
                 </div>
-                <p id="clientPoints" class="text-3xl font-bold mb-2">1,240 pts</p>
-                <p class="text-white/80 text-sm">Échangeable contre des avoirs</p>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <button onclick="showTransferModal()" class="bg-white rounded-xl card-shadow p-6 text-center hover:bg-gray-50 transition-colors">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span class="text-blue-600 text-xl">💸</span>
+                    </div>
+                    <p class="font-semibold text-gray-800">Transférer</p>
+                </button>
+
+                <button onclick="showTopUpModal()" class="bg-white rounded-xl card-shadow p-6 text-center hover:bg-gray-50 transition-colors">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span class="text-green-600 text-xl">💰</span>
+                    </div>
+                    <p class="font-semibold text-gray-800">Recharger</p>
+                </button>
+
+                <button onclick="showQRScanner()" class="bg-white rounded-xl card-shadow p-6 text-center hover:bg-gray-50 transition-colors">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span class="text-purple-600 text-xl">📱</span>
+                    </div>
+                    <p class="font-semibold text-gray-800">Scanner QR</p>
+                </button>
+
+                <button onclick="showBillsModal()" class="bg-white rounded-xl card-shadow p-6 text-center hover:bg-gray-50 transition-colors">
+                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span class="text-orange-600 text-xl">🧾</span>
+                    </div>
+                    <p class="font-semibold text-gray-800">Factures</p>
+                </button>
+            </div>
+
+            <!-- Transactions récentes -->
+            <div class="bg-white rounded-xl card-shadow p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Transactions Récentes</h3>
+                    <button class="text-purple-600 text-sm hover:underline">Voir tout</button>
+                </div>
+                <div class="space-y-4" id="clientTransactions">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                <span class="text-red-600">📤</span>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">Paiement Supermarché</p>
+                                <p class="text-sm text-gray-600">Aujourd'hui 16:45</p>
+                            </div>
+                        </div>
+                        <p class="font-semibold text-red-600">-12,500 FCFA</p>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                <span class="text-green-600">📥</span>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">Reçu de Papa</p>
+                                <p class="text-sm text-gray-600">Hier 20:30</p>
+                            </div>
+                        </div>
+                        <p class="font-semibold text-green-600">+50,000 FCFA</p>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <span class="text-blue-600">🏪</span>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">Achat Pharmacie</p>
+                                <p class="text-sm text-gray-600">Hier 14:20</p>
+                            </div>
+                        </div>
+                        <p class="font-semibold text-red-600">-8,750 FCFA</p>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Client Actions -->
-        <div class="grid md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-lg">
-                <h3 class="font-bold text-lg mb-4 flex items-center">
-                    <span class="mr-2">📤</span>
-                    Envoyer un Avoir
-                </h3>
-                <div class="space-y-4">
-                    <input type="tel" id="sendToPhone" placeholder="Numéro destinataire" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    <input type="number" id="sendAmount" placeholder="Montant à envoyer" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    <select id="sendFromShop" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                        <option value="">Choisir la boutique</option>
+    <!-- Modal de transfert -->
+    <div id="transferModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md slide-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Transférer de l'argent</h3>
+                <button onclick="closeModal('transferModal')" class="text-gray-500 hover:text-gray-700">
+                    <span class="text-2xl">×</span>
+                </button>
+            </div>
+            
+            <form onsubmit="processTransfer(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Numéro du destinataire</label>
+                    <input type="tel" id="transferPhone" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Montant (FCFA)</label>
+                    <input type="number" id="transferAmount" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Message (optionnel)</label>
+                    <input type="text" id="transferMessage" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                </div>
+                
+                <button type="submit" 
+                        class="w-full gradient-bg text-white py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                    Confirmer le transfert
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de rechargement -->
+    <div id="topUpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md slide-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Recharger le compte</h3>
+                <button onclick="closeModal('topUpModal')" class="text-gray-500 hover:text-gray-700">
+                    <span class="text-2xl">×</span>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Montant (FCFA)</label>
+                    <input type="number" id="topUpAmount" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Méthode de paiement</label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                        <option>Orange Money</option>
+                        <option>MTN Mobile Money</option>
+                        <option>Moov Money</option>
+                        <option>Carte bancaire</option>
                     </select>
-                    <button onclick="sendAvoir()" class="w-full gradient-bg text-white font-medium py-3 rounded-lg hover:opacity-90 transition-opacity">
-                        Envoyer l'Avoir
-                    </button>
                 </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-lg">
-                <h3 class="font-bold text-lg mb-4 flex items-center">
-                    <span class="mr-2">🎁</span>
-                    Échanger des Points
-                </h3>
-                <div class="space-y-4">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-600 mb-2">Taux d'échange</p>
-                        <p class="font-bold">100 points = 500 FCFA</p>
-                    </div>
-                    <input type="number" id="pointsToExchange" placeholder="Nombre de points" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    <button onclick="exchangePoints()" class="w-full bg-yellow-500 text-white font-medium py-3 rounded-lg hover:bg-yellow-600 transition-colors">
-                        Échanger les Points
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Client Avoirs by Shop -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <h3 class="font-bold text-lg mb-4 flex items-center">
-                <span class="mr-2">🏪</span>
-                Mes Avoirs par Boutique
-            </h3>
-            <div id="clientShops" class="space-y-4">
-                <!-- Shop avoirs will be populated here -->
+                
+                <button onclick="processTopUp()" 
+                        class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                    Recharger maintenant
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Notification -->
-    <div id="notification" class="notification bg-white rounded-lg shadow-lg p-4 border-l-4 border-green-500">
-        <div class="flex items-center">
-            <span id="notificationIcon" class="text-2xl mr-3">✅</span>
-            <div>
-                <p id="notificationTitle" class="font-medium text-gray-800">Succès</p>
-                <p id="notificationMessage" class="text-sm text-gray-600">Opération réalisée avec succès</p>
+    <!-- Scanner QR -->
+    <div id="qrScannerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md slide-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Scanner QR Code</h3>
+                <button onclick="closeModal('qrScannerModal')" class="text-gray-500 hover:text-gray-700">
+                    <span class="text-2xl">×</span>
+                </button>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-48 h-48 bg-gray-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                    <div class="animate-pulse-slow">
+                        <span class="text-6xl">📱</span>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Pointez votre caméra vers le QR code</p>
+                <button onclick="simulateQRScan()" 
+                        class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                    Simuler scan (Demo)
+                </button>
             </div>
         </div>
+    </div>
+
+    <!-- Modal de paiement de factures -->
+    <div id="billsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md slide-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Payer une facture</h3>
+                <button onclick="closeModal('billsModal')" class="text-gray-500 hover:text-gray-700">
+                    <span class="text-2xl">×</span>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="selectBillType('electricity')" class="p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 transition-colors text-center">
+                        <span class="text-2xl block mb-2">⚡</span>
+                        <span class="text-sm font-medium">Électricité</span>
+                    </button>
+                    <button onclick="selectBillType('water')" class="p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 transition-colors text-center">
+                        <span class="text-2xl block mb-2">💧</span>
+                        <span class="text-sm font-medium">Eau</span>
+                    </button>
+                    <button onclick="selectBillType('internet')" class="p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 transition-colors text-center">
+                        <span class="text-2xl block mb-2">📶</span>
+                        <span class="text-sm font-medium">Internet</span>
+                    </button>
+                    <button onclick="selectBillType('phone')" class="p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 transition-colors text-center">
+                        <span class="text-2xl block mb-2">📞</span>
+                        <span class="text-sm font-medium">Téléphone</span>
+                    </button>
+                </div>
+                
+                <div id="billForm" class="hidden space-y-4">
+                    <input type="text" id="billReference" placeholder="Numéro de référence" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <input type="number" id="billAmount" placeholder="Montant (FCFA)" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <button onclick="payBill()" 
+                            class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
+                        Payer la facture
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notification" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 slide-in">
+        <p id="notificationText"></p>
     </div>
 
     <script>
-        // Database simulation
-        let users = {
-            '+22501234567': {
-                name: 'Amadou Diallo',
-                password: '123456',
-                type: 'client',
-                avoirs: {
-                    'MC001': 8500,
-                    'SM002': 4250,
-                    'PH003': 3000
-                },
-                points: 1240,
-                registrationDate: '2024-01-15',
-                transactions: []
-            },
-            '+22507654321': {
-                name: 'Fatou Sow',
-                password: '123456',
-                type: 'client',
-                avoirs: {
-                    'MC001': 12000,
-                    'SM002': 2500
-                },
-                points: 890,
-                registrationDate: '2024-01-20',
-                transactions: []
-            },
-            '+22512345678': {
-                name: 'Boutique Centrale',
-                password: 'admin123',
-                type: 'merchant',
-                shopId: 'MC001',
-                shopName: 'Boutique Centrale',
-                registrationDate: '2024-01-01',
-                adRevenue: 12500
-            }
-        };
-
-        let shops = {
-            'MC001': 'Boutique Centrale',
-            'SM002': 'Super Marché Plus',
-            'PH003': 'Pharmacie Santé'
-        };
-
-        let ads = [
-            {
-                id: 1,
-                merchantId: '+22512345678',
-                title: 'Promotion Spéciale !',
-                text: '-20% sur tous les produits chez SuperMarché Plus',
-                category: 'promotion',
-                active: true,
-                createdDate: '2024-01-25',
-                weekCreated: 4 // Week number of 2024
-            }
-        ];
-
-        let subscriptions = {
-            '+22512345678': {
-                active: true,
-                startDate: '2024-01-01',
-                endDate: '2024-02-01',
-                monthlyFee: 15000,
-                adsThisWeek: 1,
-                maxAdsPerWeek: 3
-            }
+        // Données utilisateurs simulées
+        const users = {
+            '+22512345678': { pin: 'admin123', type: 'merchant', name: 'Boutique Centrale', balance: 2450000 },
+            '+22501234567': { pin: '123456', type: 'client', name: 'Jean Kouassi', balance: 125750 }
         };
 
         let currentUser = null;
-        let currentUserType = null;
 
-        // Login/Register Functions
-        function showLogin() {
-            document.getElementById('loginTab').className = 'flex-1 py-2 px-4 rounded-md font-medium transition-all bg-white text-purple-600 shadow-sm';
-            document.getElementById('registerTab').className = 'flex-1 py-2 px-4 rounded-md font-medium transition-all text-gray-600';
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('registerForm').style.display = 'none';
-        }
+        // Fonction de connexion
+        function login(event) {
+            event.preventDefault();
+            const phone = document.getElementById('phone').value;
+            const pin = document.getElementById('pin').value;
 
-        function showRegister() {
-            document.getElementById('loginTab').className = 'flex-1 py-2 px-4 rounded-md font-medium transition-all text-gray-600';
-            document.getElementById('registerTab').className = 'flex-1 py-2 px-4 rounded-md font-medium transition-all bg-white text-purple-600 shadow-sm';
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('registerForm').style.display = 'block';
-        }
+            if (users[phone] && users[phone].pin === pin) {
+                currentUser = { phone, ...users[phone] };
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('userInfo').classList.remove('hidden');
+                document.getElementById('userName').textContent = currentUser.name;
 
-        function toggleShopField() {
-            const userType = document.getElementById('registerUserType').value;
-            const shopField = document.getElementById('shopNameField');
-            shopField.style.display = userType === 'merchant' ? 'block' : 'none';
-        }
+                if (currentUser.type === 'merchant') {
+                    document.getElementById('merchantDashboard').classList.remove('hidden');
+                    updateMerchantBalance();
+                } else {
+                    document.getElementById('clientDashboard').classList.remove('hidden');
+                    updateClientBalance();
+                }
 
-        function login() {
-            const phone = document.getElementById('loginPhone').value;
-            const password = document.getElementById('loginPassword').value;
-            const userType = document.getElementById('loginUserType').value;
-
-            if (!phone || !password) {
-                showNotification('Erreur', 'Veuillez remplir tous les champs', 'error');
-                return;
-            }
-
-            if (users[phone] && users[phone].password === password && users[phone].type === userType) {
-                currentUser = phone;
-                currentUserType = userType;
-                showMainApp();
-                showNotification('Connexion réussie', `Bienvenue ${users[phone].name}`, 'success');
+                showNotification('Connexion réussie !');
             } else {
-                showNotification('Erreur', 'Identifiants incorrects', 'error');
+                showNotification('Identifiants incorrects', 'error');
             }
         }
 
-        function register() {
-            const name = document.getElementById('registerName').value;
-            const phone = document.getElementById('registerPhone').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerConfirmPassword').value;
-            const userType = document.getElementById('registerUserType').value;
-            const shopName = document.getElementById('registerShopName').value;
-
-            if (!name || !phone || !password || !confirmPassword) {
-                showNotification('Erreur', 'Veuillez remplir tous les champs', 'error');
-                return;
-            }
-
-            if (userType === 'merchant' && !shopName) {
-                showNotification('Erreur', 'Veuillez saisir le nom de votre boutique', 'error');
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                showNotification('Erreur', 'Les mots de passe ne correspondent pas', 'error');
-                return;
-            }
-
-            if (users[phone]) {
-                showNotification('Erreur', 'Ce numéro est déjà enregistré', 'error');
-                return;
-            }
-
-            // Create new user
-            const newUser = {
-                name: name,
-                password: password,
-                type: userType,
-                registrationDate: new Date().toISOString().split('T')[0],
-                transactions: []
-            };
-
-            if (userType === 'client') {
-                newUser.avoirs = {};
-                newUser.points = 0;
-            } else {
-                newUser.shopId = 'SH' + Date.now();
-                newUser.shopName = shopName;
-                newUser.adRevenue = 0;
-                shops[newUser.shopId] = shopName;
-            }
-
-            users[phone] = newUser;
-            
-            showNotification('Inscription réussie', 'Votre compte a été créé avec succès', 'success');
-            
-            // Clear form
-            document.getElementById('registerName').value = '';
-            document.getElementById('registerPhone').value = '';
-            document.getElementById('registerPassword').value = '';
-            document.getElementById('registerConfirmPassword').value = '';
-            document.getElementById('registerShopName').value = '';
-            
-            showLogin();
-        }
-
+        // Fonction de déconnexion
         function logout() {
             currentUser = null;
-            currentUserType = null;
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('mainNav').style.display = 'none';
-            document.getElementById('merchantDashboard').style.display = 'none';
-            document.getElementById('clientDashboard').style.display = 'none';
-            document.getElementById('adBanner').style.display = 'none';
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('merchantDashboard').classList.add('hidden');
+            document.getElementById('clientDashboard').classList.add('hidden');
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('phone').value = '';
+            document.getElementById('pin').value = '';
         }
 
-        function showMainApp() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainNav').style.display = 'block';
+        // Mise à jour des soldes
+        function updateMerchantBalance() {
+            document.getElementById('merchantBalance').textContent = 
+                new Intl.NumberFormat('fr-FR').format(currentUser.balance) + ' FCFA';
+        }
+
+        function updateClientBalance() {
+            document.getElementById('clientBalance').textContent = 
+                new Intl.NumberFormat('fr-FR').format(currentUser.balance) + ' FCFA';
+        }
+
+        // Génération QR Code (commerçant)
+        function generateQR() {
+            const amount = document.getElementById('qrAmount').value;
+            const description = document.getElementById('qrDescription').value;
+
+            if (!amount) {
+                showNotification('Veuillez saisir un montant', 'error');
+                return;
+            }
+
+            document.getElementById('qrDisplay').classList.remove('hidden');
+            showNotification('QR Code généré pour ' + new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA');
+        }
+
+        // Demande de paiement (commerçant)
+        function requestPayment() {
+            const phone = document.getElementById('customerPhone').value;
+            const amount = document.getElementById('requestAmount').value;
+
+            if (!phone || !amount) {
+                showNotification('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            showNotification('Demande de paiement envoyée à ' + phone);
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('requestAmount').value = '';
+        }
+
+        // Modales
+        function showTransferModal() {
+            document.getElementById('transferModal').classList.remove('hidden');
+        }
+
+        function showTopUpModal() {
+            document.getElementById('topUpModal').classList.remove('hidden');
+        }
+
+        function showQRScanner() {
+            document.getElementById('qrScannerModal').classList.remove('hidden');
+        }
+
+        function showBillsModal() {
+            document.getElementById('billsModal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            // Reset forms
+            if (modalId === 'billsModal') {
+                document.getElementById('billForm').classList.add('hidden');
+            }
+        }
+
+        // Transfert d'argent
+        function processTransfer(event) {
+            event.preventDefault();
+            const phone = document.getElementById('transferPhone').value;
+            const amount = parseInt(document.getElementById('transferAmount').value);
+            const message = document.getElementById('transferMessage').value;
+
+            if (amount > currentUser.balance) {
+                showNotification('Solde insuffisant', 'error');
+                return;
+            }
+
+            currentUser.balance -= amount;
+            users[currentUser.phone].balance = currentUser.balance;
+            updateClientBalance();
+
+            showNotification('Transfert de ' + new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA envoyé à ' + phone);
+            closeModal('transferModal');
             
-            const user = users[currentUser];
-            document.getElementById('currentUser').textContent = user.name;
-            document.getElementById('currentUserType').textContent = user.type === 'merchant' ? 'Commerçant' : 'Client';
-
-            if (currentUserType === 'merchant') {
-                document.getElementById('merchantDashboard').style.display = 'block';
-                document.getElementById('clientDashboard').style.display = 'none';
-                document.getElementById('adBanner').style.display = 'none';
-                updateMerchantDashboard();
-            } else {
-                document.getElementById('merchantDashboard').style.display = 'none';
-                document.getElementById('clientDashboard').style.display = 'block';
-                document.getElementById('adBanner').style.display = 'block';
-                updateClientDashboard();
-                showRandomAd();
-            }
+            // Reset form
+            document.getElementById('transferPhone').value = '';
+            document.getElementById('transferAmount').value = '';
+            document.getElementById('transferMessage').value = '';
         }
 
-        // Subscription Functions
-        function subscribeToAds() {
-            const merchant = users[currentUser];
-            
-            if (subscriptions[currentUser] && subscriptions[currentUser].active) {
-                showNotification('Déjà abonné', 'Vous avez déjà un abonnement actif', 'error');
+        // Rechargement
+        function processTopUp() {
+            const amount = parseInt(document.getElementById('topUpAmount').value);
+
+            if (!amount || amount <= 0) {
+                showNotification('Montant invalide', 'error');
                 return;
             }
 
-            // Simulate payment process
-            const confirmed = confirm(`Confirmer l'abonnement publicitaire ?\n\nPack: 3 pubs/semaine\nPrix: 15,000 FCFA/mois\n\nCet abonnement vous permet de créer jusqu'à 3 publicités par semaine.`);
-            
-            if (confirmed) {
-                const startDate = new Date();
-                const endDate = new Date();
-                endDate.setMonth(endDate.getMonth() + 1);
+            currentUser.balance += amount;
+            users[currentUser.phone].balance = currentUser.balance;
+            updateClientBalance();
 
-                subscriptions[currentUser] = {
-                    active: true,
-                    startDate: startDate.toISOString().split('T')[0],
-                    endDate: endDate.toISOString().split('T')[0],
-                    monthlyFee: 15000,
-                    adsThisWeek: 0,
-                    maxAdsPerWeek: 3
-                };
-
-                updateMerchantDashboard();
-                showNotification('Abonnement Activé', 'Votre abonnement publicitaire est maintenant actif ! Vous pouvez créer jusqu\'à 3 pubs par semaine.', 'success');
-            }
+            showNotification('Compte rechargé de ' + new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA');
+            closeModal('topUpModal');
+            document.getElementById('topUpAmount').value = '';
         }
 
-        function createAd() {
-            const title = document.getElementById('adTitleInput').value;
-            const text = document.getElementById('adTextInput').value;
-            const category = document.getElementById('adCategory').value;
-
-            if (!title || !text || !category) {
-                showNotification('Erreur', 'Veuillez remplir tous les champs', 'error');
-                return;
-            }
-
-            const subscription = subscriptions[currentUser];
-            if (!subscription || !subscription.active) {
-                showNotification('Erreur', 'Vous devez avoir un abonnement actif pour créer des publicités', 'error');
-                return;
-            }
-
-            const currentWeek = getWeekNumber(new Date());
-            const weeklyAds = ads.filter(ad => 
-                ad.merchantId === currentUser && 
-                ad.weekCreated === currentWeek
-            ).length;
-
-            if (weeklyAds >= subscription.maxAdsPerWeek) {
-                showNotification('Limite atteinte', `Vous avez déjà créé ${subscription.maxAdsPerWeek} publicités cette semaine`, 'error');
-                return;
-            }
-
-            const newAd = {
-                id: Date.now(),
-                merchantId: currentUser,
-                title: title,
-                text: text,
-                category: category,
-                active: true,
-                createdDate: new Date().toISOString().split('T')[0],
-                weekCreated: currentWeek
-            };
-
-            ads.push(newAd);
-            subscription.adsThisWeek = weeklyAds + 1;
-
-            document.getElementById('adTitleInput').value = '';
-            document.getElementById('adTextInput').value = '';
-            document.getElementById('adCategory').value = '';
-
-            updateMerchantDashboard();
-            showNotification('Pub créée', 'Votre publicité est maintenant diffusée auprès de tous les clients !', 'success');
-        }
-
-        function showRandomAd() {
-            const activeAds = ads.filter(ad => ad.active);
-            if (activeAds.length > 0) {
-                const randomAd = activeAds[Math.floor(Math.random() * activeAds.length)];
-                document.getElementById('adTitle').textContent = randomAd.title;
-                document.getElementById('adText').textContent = randomAd.text;
+        // Scanner QR simulé
+        function simulateQRScan() {
+            closeModal('qrScannerModal');
+            setTimeout(() => {
+                const amount = 15000;
+                const merchant = "Supermarché Central";
                 
-                // Rotate ads every 15 seconds
-                setTimeout(showRandomAd, 15000);
-            }
-        }
-
-        function getWeekNumber(date) {
-            const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-            const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-            return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-        }
-
-        // Existing functions (createAvoir, processPayment, etc.) remain the same...
-        function createAvoir() {
-            const phone = document.getElementById('clientPhone').value;
-            const amount = parseFloat(document.getElementById('avoirAmount').value);
-
-            if (!phone || !amount || amount <= 0) {
-                showNotification('Erreur', 'Veuillez remplir tous les champs correctement', 'error');
-                return;
-            }
-
-            if (!users[phone] || users[phone].type !== 'client') {
-                showNotification('Erreur', 'Client non trouvé ou non inscrit', 'error');
-                return;
-            }
-
-            const merchantShopId = users[currentUser].shopId;
-            
-            if (!users[phone].avoirs[merchantShopId]) {
-                users[phone].avoirs[merchantShopId] = 0;
-            }
-
-            users[phone].avoirs[merchantShopId] += amount;
-            users[phone].points += Math.floor(amount / 100);
-
-            document.getElementById('clientPhone').value = '';
-            document.getElementById('avoirAmount').value = '';
-
-            updateMerchantDashboard();
-            showNotification('Avoir Créé', `Avoir de ${amount} FCFA créé pour ${users[phone].name}`, 'success');
-        }
-
-        function processPayment() {
-            const phone = document.getElementById('paymentPhone').value;
-            const amount = parseFloat(document.getElementById('paymentAmount').value);
-
-            if (!phone || !amount || amount <= 0) {
-                showNotification('Erreur', 'Veuillez remplir tous les champs correctement', 'error');
-                return;
-            }
-
-            if (!users[phone] || users[phone].type !== 'client') {
-                showNotification('Erreur', 'Client non trouvé', 'error');
-                return;
-            }
-
-            const merchantShopId = users[currentUser].shopId;
-            
-            if (!users[phone].avoirs[merchantShopId] || users[phone].avoirs[merchantShopId] < amount) {
-                showNotification('Erreur', 'Solde insuffisant pour ce client', 'error');
-                return;
-            }
-
-            users[phone].avoirs[merchantShopId] -= amount;
-            users[phone].points += Math.floor(amount / 50);
-
-            document.getElementById('paymentPhone').value = '';
-            document.getElementById('paymentAmount').value = '';
-
-            updateMerchantDashboard();
-            showNotification('Paiement Traité', `Paiement de ${amount} FCFA traité pour ${users[phone].name}`, 'success');
-        }
-
-        function updateMerchantDashboard() {
-            const merchant = users[currentUser];
-            const shopId = merchant.shopId;
-            const subscription = subscriptions[currentUser];
-            
-            let totalAvoirs = 0;
-            let registeredClients = 0;
-            
-            Object.values(users).forEach(user => {
-                if (user.type === 'client') {
-                    registeredClients++;
-                    if (user.avoirs[shopId]) {
-                        totalAvoirs += user.avoirs[shopId];
+                if (confirm(`Payer ${new Intl.NumberFormat('fr-FR').format(amount)} FCFA à ${merchant} ?`)) {
+                    if (amount > currentUser.balance) {
+                        showNotification('Solde insuffisant', 'error');
+                        return;
                     }
+                    
+                    currentUser.balance -= amount;
+                    users[currentUser.phone].balance = currentUser.balance;
+                    updateClientBalance();
+                    showNotification('Paiement de ' + new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA effectué');
+                }
+            }, 1000);
+        }
+
+        // Paiement de factures
+        function selectBillType(type) {
+            document.getElementById('billForm').classList.remove('hidden');
+            const typeNames = {
+                'electricity': 'Électricité',
+                'water': 'Eau',
+                'internet': 'Internet',
+                'phone': 'Téléphone'
+            };
+            document.getElementById('billReference').placeholder = `Référence ${typeNames[type]}`;
+        }
+
+        function payBill() {
+            const reference = document.getElementById('billReference').value;
+            const amount = parseInt(document.getElementById('billAmount').value);
+
+            if (!reference || !amount) {
+                showNotification('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            if (amount > currentUser.balance) {
+                showNotification('Solde insuffisant', 'error');
+                return;
+            }
+
+            currentUser.balance -= amount;
+            users[currentUser.phone].balance = currentUser.balance;
+            updateClientBalance();
+
+            showNotification('Facture payée : ' + new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA');
+            closeModal('billsModal');
+            document.getElementById('billReference').value = '';
+            document.getElementById('billAmount').value = '';
+        }
+
+        // Système de notifications
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 slide-in ${
+                type === 'error' ? 'bg-red-500' : 'bg-green-500'
+            } text-white`;
+            
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Fermer les modales en cliquant à l'extérieur
+        window.onclick = function(event) {
+            const modals = ['transferModal', 'topUpModal', 'qrScannerModal', 'billsModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    closeModal(modalId);
                 }
             });
-
-            document.getElementById('totalAvoirs').textContent = `${totalAvoirs.toLocaleString()} FCFA`;
-            document.getElementById('registeredClients').textContent = registeredClients;
-
-            // Update subscription status
-            const isSubscribed = subscription && subscription.active;
-            document.getElementById('subscriptionStatus2').textContent = isSubscribed ? 'Actif' : 'Inactif';
-            document.getElementById('subscriptionStatus2').className = `text-2xl font-bold ${isSubscribed ? 'text-green-600' : 'text-gray-800'}`;
-
-            // Update weekly ads count
-            const currentWeek = getWeekNumber(new Date());
-            const weeklyAdsCount = ads.filter(ad => 
-                ad.merchantId === currentUser && 
-                ad.weekCreated === currentWeek
-            ).length;
-            document.getElementById('weeklyAds').textContent = `${weeklyAdsCount}/3`;
-
-            // Update subscription UI
-            updateSubscriptionUI();
-            updateClientDatabase();
-            updateAdsList();
         }
-
-        function updateSubscriptionUI() {
-            const subscription = subscriptions[currentUser];
-            const subscriptionStatusDiv = document.getElementById('subscriptionStatus');
-            const subscribeBtn = document.getElementById('subscribeBtn');
-            const createAdSection = document.getElementById('createAdSection');
-
-            if (subscription && subscription.active) {
-                subscriptionStatusDiv.innerHTML = `
-                    <div class="bg-green-100 p-3 rounded-lg text-green-800">
-                        <p class="font-bold">✅ Abonnement Actif</p>
-                        <p class="text-sm">Expire le: ${new Date(subscription.endDate).toLocaleDateString('fr-FR')}</p>
-                        <p class="text-sm">Pubs cette semaine: ${subscription.adsThisWeek || 0}/3</p>
-                    </div>
-                `;
-                subscribeBtn.textContent = 'Renouveler l\'abonnement';
-                subscribeBtn.className = 'w-full bg-gray-400 text-white font-medium py-3 rounded-lg cursor-not-allowed';
-                subscribeBtn.disabled = true;
-                createAdSection.style.display = 'block';
-
-                // Update remaining ads counter
-                const currentWeek = getWeekNumber(new Date());
-                const weeklyAdsCount = ads.filter(ad => 
-                    ad.merchantId === currentUser && 
-                    ad.weekCreated === currentWeek
-                ).length;
-                document.getElementById('remainingAds').textContent = 3 - weeklyAdsCount;
-
-                // Update preview on input
-                document.getElementById('adTitleInput').oninput = function() {
-                    document.getElementById('previewTitle').textContent = this.value || 'Votre titre ici';
-                };
-                document.getElementById('adTextInput').oninput = function() {
-                    document.getElementById('previewText').textContent = this.value || 'Votre texte ici';
-                };
-            } else {
-                subscriptionStatusDiv.innerHTML = `
-                    <div class="bg-red-100 p-3 rounded-lg text-red-800">
-                        <p class="font-bold">❌ Pas d'abonnement</p>
-                        <p class="text-sm">Abonnez-vous pour créer des publicités</p>
-                    </div>
-                `;
-                subscribeBtn.textContent = 'S\'abonner Maintenant';
-                subscribeBtn.className = 'w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium py-3 rounded-lg hover:opacity-90 transition-opacity';
-                subscribeBtn.disabled = false;
-                createAdSection.style.display = 'none';
-            }
-        }
-
-        function updateClientDatabase() {
-            const tbody = document.getElementById('clientDatabase');
-            const clients = Object.entries(users).filter(([phone, user]) => user.type === 'client');
-            const shopId = users[currentUser].shopId;
-
-            tbody.innerHTML = clients.map(([phone, client]) => `
-                <tr class="border-b border-gray-100">
-                    <td class="py-3 px-4 text-sm font-medium">${client.name}</td>
-                    <td class="py-3 px-4 text-sm">${phone}</td>
-                    <td class="py-3 px-4 text-sm font-medium">${(client.avoirs[shopId] || 0).toLocaleString()} FCFA</td>
-                    <td class="py-3 px-4 text-sm">${client.points} pts</td>
-                    <td class="py-3 px-4 text-sm">${client.registrationDate}</td>
-                </tr>
-            `).join('');
-        }
-
-        function updateAdsList() {
-            const merchantAds = ads.filter(ad => ad.merchantId === currentUser);
-            const adsList = document.getElementById('adsList');
-
-            if (merchantAds.length === 0) {
-                adsList.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <span class="text-4xl mb-4 block">📢</span>
-                        <p>Aucune publicité créée</p>
-                        <p class="text-sm">Abonnez-vous pour commencer à créer des publicités</p>
-                    </div>
-                `;
-                return;
-            }
-
-            adsList.innerHTML = merchantAds.map(ad => `
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h4 class="font-bold">${ad.title}</h4>
-                            <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 mr-2">
-                                ${ad.category}
-                            </span>
-                        </div>
-                        <span class="px-2 py-1 text-xs rounded-full ${ad.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                            ${ad.active ? 'Diffusée' : 'Inactive'}
-                        </span>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-3">${ad.text}</p>
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p class="text-gray-500">Date de création</p>
-                            <p class="font-medium">${new Date(ad.createdDate).toLocaleDateString('fr-FR')}</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Statut</p>
-                            <p class="font-medium text-green-600">✅ Visible par tous les clients</p>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function updateClientDashboard() {
-            const client = users[currentUser];
-            
-            const totalBalance = Object.values(client.avoirs).reduce((sum, balance) => sum + balance, 0);
-            document.getElementById('clientBalance').textContent = `${totalBalance.toLocaleString()} FCFA`;
-            document.getElementById('clientPoints').textContent = `${client.points.toLocaleString()} pts`;
-
-            // Update shops dropdown and list
-            const sendFromShop = document.getElementById('sendFromShop');
-            sendFromShop.innerHTML = '<option value="">Choisir la boutique</option>' + 
-                Object.entries(client.avoirs).map(([shopId, balance]) => 
-                    `<option value="${shopId}">${shops[shopId]} (${balance.toLocaleString()} FCFA)</option>`
-                ).join('');
-
-            const shopsDiv = document.getElementById('clientShops');
-            shopsDiv.innerHTML = Object.entries(client.avoirs).map(([shopId, balance]) => `
-                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                    <div>
-                        <h4 class="font-medium">${shops[shopId]}</h4>
-                        <p class="text-sm text-gray-600">ID: ${shopId}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-bold text-lg">${balance.toLocaleString()} FCFA</p>
-                        <p class="text-sm text-gray-600">Disponible</p>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function sendAvoir() {
-            const toPhone = document.getElementById('sendToPhone').value;
-            const amount = parseFloat(document.getElementById('sendAmount').value);
-            const fromShop = document.getElementById('sendFromShop').value;
-
-            if (!toPhone || !amount || !fromShop || amount <= 0) {
-                showNotification('Erreur', 'Veuillez remplir tous les champs correctement', 'error');
-                return;
-            }
-
-            if (!users[toPhone] || users[toPhone].type !== 'client') {
-                showNotification('Erreur', 'Destinataire non trouvé ou non inscrit', 'error');
-                return;
-            }
-
-            if (!users[currentUser].avoirs[fromShop] || users[currentUser].avoirs[fromShop] < amount) {
-                showNotification('Erreur', 'Solde insuffisant dans cette boutique', 'error');
-                return;
-            }
-
-            users[currentUser].avoirs[fromShop] -= amount;
-
-            if (!users[toPhone].avoirs[fromShop]) {
-                users[toPhone].avoirs[fromShop] = 0;
-            }
-            users[toPhone].avoirs[fromShop] += amount;
-
-            document.getElementById('sendToPhone').value = '';
-            document.getElementById('sendAmount').value = '';
-            document.getElementById('sendFromShop').value = '';
-
-            updateClientDashboard();
-            showNotification('Avoir Envoyé', `${amount} FCFA envoyé à ${users[toPhone].name}`, 'success');
-        }
-
-        function exchangePoints() {
-            const points = parseInt(document.getElementById('pointsToExchange').value);
-
-            if (!points || points <= 0 || points > users[currentUser].points) {
-                showNotification('Erreur', 'Nombre de points invalide', 'error');
-                return;
-            }
-
-            if (points < 100) {
-                showNotification('Erreur', 'Minimum 100 points requis', 'error');
-                return;
-            }
-
-            const avoirAmount = (points / 100) * 500;
-            users[currentUser].points -= points;
-            
-            // Add to first available shop or create new entry
-            const firstShop = Object.keys(users[currentUser].avoirs)[0] || 'MC001';
-            if (!users[currentUser].avoirs[firstShop]) {
-                users[currentUser].avoirs[firstShop] = 0;
-            }
-            users[currentUser].avoirs[firstShop] += avoirAmount;
-
-            document.getElementById('pointsToExchange').value = '';
-            updateClientDashboard();
-            showNotification('Points Échangés', `${points} points échangés contre ${avoirAmount} FCFA`, 'success');
-        }
-
-        function showNotification(title, message, type = 'success') {
-            const notification = document.getElementById('notification');
-            const icon = document.getElementById('notificationIcon');
-            const titleEl = document.getElementById('notificationTitle');
-            const messageEl = document.getElementById('notificationMessage');
-
-            titleEl.textContent = title;
-            messageEl.textContent = message;
-
-            if (type === 'success') {
-                icon.textContent = '✅';
-                notification.className = 'notification bg-white rounded-lg shadow-lg p-4 border-l-4 border-green-500';
-            } else {
-                icon.textContent = '❌';
-                notification.className = 'notification bg-white rounded-lg shadow-lg p-4 border-l-4 border-red-500';
-            }
-
-            notification.classList.add('show');
-
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 4000);
-        }
-
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            // App starts with login screen
-        });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97ff2c319158534c',t:'MTc1ODAxMzIxNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97ffe43ff687534d',t:'MTc1ODAyMDc1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
