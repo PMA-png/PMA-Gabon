@@ -3,700 +3,1157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PMA - Paiement Mobile Afrique</title>
+    <title>Porte Monnaie Avoir</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
+        
         .card-shadow {
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        .animate-pulse-slow {
-            animation: pulse 3s infinite;
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
         }
-        @keyframes slideIn {
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
         .slide-in {
-            animation: slideIn 0.5s ease-out;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .qr-scanner {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .scanner-frame {
+            width: 200px;
+            height: 200px;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .scanner-frame::before,
+        .scanner-frame::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #667eea;
+        }
+        
+        .scanner-frame::before {
+            top: -3px;
+            left: -3px;
+            border-right: none;
+            border-bottom: none;
+        }
+        
+        .scanner-frame::after {
+            bottom: -3px;
+            right: -3px;
+            border-left: none;
+            border-top: none;
+        }
+        
+        .balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .transaction-item {
+            transition: all 0.2s ease;
+        }
+        
+        .transaction-item:hover {
+            background-color: #f8fafc;
+            transform: translateX(4px);
         }
     </style>
 </head>
-<body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="gradient-bg text-white p-4 shadow-lg">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                    <span class="text-purple-600 font-bold text-lg">P</span>
-                </div>
-                <h1 class="text-xl font-bold">PMA</h1>
-            </div>
-            <div id="userInfo" class="hidden">
-                <span id="userName" class="mr-4"></span>
-                <button onclick="logout()" class="bg-white text-purple-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">
-                    Déconnexion
-                </button>
-            </div>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Notification -->
+    <div id="notification" class="notification bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
+        <div class="flex items-center">
+            <span id="notificationText">Opération réussie !</span>
+            <button onclick="hideNotification()" class="ml-4 text-white hover:text-gray-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
         </div>
-    </nav>
+    </div>
 
     <!-- Page de connexion -->
-    <div id="loginPage" class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl card-shadow p-8 w-full max-w-md slide-in">
+    <div id="loginPage" class="min-h-screen gradient-bg flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md fade-in">
             <div class="text-center mb-8">
-                <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-white font-bold text-2xl">P</span>
+                <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                    </svg>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-800">Connexion PMA</h2>
-                <p class="text-gray-600 mt-2">Paiement Mobile Afrique</p>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Porte Monnaie Avoir</h1>
+                <p class="text-gray-600">Votre solution de paiement mobile</p>
             </div>
-
-            <form onsubmit="login(event)" class="space-y-6">
+            
+            <form id="loginForm" class="space-y-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Numéro de téléphone</label>
-                    <input type="tel" id="phone" required 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                           placeholder="+225 XX XX XX XX">
+                    <input type="tel" id="phoneNumber" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" placeholder="+241 XX XX XX XX" required>
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Code PIN</label>
-                    <input type="password" id="pin" required 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                           placeholder="Votre code PIN">
+                    <input type="password" id="pinCode" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" placeholder="••••••" required>
                 </div>
-
-                <button type="submit" 
-                        class="w-full gradient-bg text-white py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                
+                <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
                     Se connecter
                 </button>
             </form>
-
+            
             <div class="mt-6 text-center">
                 <p class="text-sm text-gray-600">Comptes de démonstration :</p>
-                <div class="mt-2 text-xs text-gray-500">
-                    <p>Commerçant: +22512345678 / admin123</p>
-                    <p>Client: +22501234567 / 123456</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Dashboard Commerçant -->
-    <div id="merchantDashboard" class="hidden min-h-screen">
-        <div class="container mx-auto p-6">
-            <div class="mb-8">
-                <h2 class="text-3xl font-bold text-gray-800 mb-2">Dashboard Commerçant</h2>
-                <p class="text-gray-600">Gérez vos paiements et transactions</p>
-            </div>
-
-            <!-- Statistiques -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white rounded-xl card-shadow p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Solde Total</p>
-                            <p class="text-2xl font-bold text-green-600" id="merchantBalance">2,450,000 FCFA</p>
-                        </div>
-                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                            <span class="text-green-600 text-xl">💰</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl card-shadow p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Transactions Aujourd'hui</p>
-                            <p class="text-2xl font-bold text-blue-600">47</p>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                            <span class="text-blue-600 text-xl">📊</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl card-shadow p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Revenus du Mois</p>
-                            <p class="text-2xl font-bold text-purple-600">8,750,000 FCFA</p>
-                        </div>
-                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                            <span class="text-purple-600 text-xl">📈</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Actions rapides -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div class="bg-white rounded-xl card-shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Générer un QR Code</h3>
-                    <div class="space-y-4">
-                        <input type="number" id="qrAmount" placeholder="Montant (FCFA)" 
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                        <input type="text" id="qrDescription" placeholder="Description (optionnel)" 
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                        <button onclick="generateQR()" 
-                                class="w-full gradient-bg text-white py-2 rounded-lg hover:opacity-90 transition-opacity">
-                            Générer QR Code
-                        </button>
-                    </div>
-                    <div id="qrDisplay" class="mt-4 text-center hidden">
-                        <div class="w-32 h-32 bg-gray-200 mx-auto rounded-lg flex items-center justify-center">
-                            <span class="text-4xl">📱</span>
-                        </div>
-                        <p class="text-sm text-gray-600 mt-2">QR Code généré</p>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl card-shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Demande de Paiement</h3>
-                    <div class="space-y-4">
-                        <input type="tel" id="customerPhone" placeholder="Numéro client" 
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                        <input type="number" id="requestAmount" placeholder="Montant (FCFA)" 
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                        <button onclick="requestPayment()" 
-                                class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                            Envoyer Demande
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Historique des transactions -->
-            <div class="bg-white rounded-xl card-shadow p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Transactions Récentes</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="border-b">
-                                <th class="text-left py-2">Date</th>
-                                <th class="text-left py-2">Client</th>
-                                <th class="text-left py-2">Montant</th>
-                                <th class="text-left py-2">Statut</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactionHistory">
-                            <tr class="border-b">
-                                <td class="py-2">Aujourd'hui 14:30</td>
-                                <td class="py-2">+225 01 23 45 67</td>
-                                <td class="py-2 text-green-600">+25,000 FCFA</td>
-                                <td class="py-2"><span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Confirmé</span></td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="py-2">Aujourd'hui 13:15</td>
-                                <td class="py-2">+225 07 89 12 34</td>
-                                <td class="py-2 text-green-600">+15,500 FCFA</td>
-                                <td class="py-2"><span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Confirmé</span></td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="py-2">Aujourd'hui 11:45</td>
-                                <td class="py-2">+225 05 67 89 01</td>
-                                <td class="py-2 text-green-600">+8,750 FCFA</td>
-                                <td class="py-2"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">En attente</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="mt-2 space-y-1 text-xs text-gray-500">
+                    <p><strong>Commerçant :</strong> +22512345678 / admin123</p>
+                    <p><strong>Client :</strong> +22501234567 / 123456</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Dashboard Client -->
-    <div id="clientDashboard" class="hidden min-h-screen">
-        <div class="container mx-auto p-6">
-            <div class="mb-8">
-                <h2 class="text-3xl font-bold text-gray-800 mb-2">Mon Portefeuille</h2>
-                <p class="text-gray-600">Gérez vos paiements mobiles</p>
-            </div>
-
-            <!-- Solde principal -->
-            <div class="bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl text-white p-8 mb-8 card-shadow">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-purple-100 mb-2">Solde disponible</p>
-                        <p class="text-4xl font-bold" id="clientBalance">125,750 FCFA</p>
-                        <p class="text-purple-100 mt-2">+225 01 23 45 67</p>
+    <div id="clientDashboard" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <header class="gradient-bg text-white p-4 shadow-lg">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
                     </div>
-                    <div class="text-right">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                            <span class="text-2xl">💳</span>
-                        </div>
+                    <div>
+                        <h2 class="font-semibold">Bienvenue</h2>
+                        <p class="text-sm opacity-90" id="clientPhone">+241 01 23 45 67</p>
                     </div>
                 </div>
+                <button onclick="logout()" class="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Balance Card -->
+        <div class="p-4">
+            <div class="balance-card rounded-2xl p-6 mb-6 card-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium opacity-90">Solde disponible</h3>
+                    <svg class="w-6 h-6 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                </div>
+                <div class="text-3xl font-bold mb-2" id="clientBalance">125 000 FCFA</div>
+                <p class="text-sm opacity-75">Dernière mise à jour : maintenant</p>
             </div>
 
             <!-- Actions rapides -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <button onclick="showTransferModal()" class="bg-white rounded-xl card-shadow p-6 text-center hover:bg-gray-50 transition-colors">
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <button onclick="showQRScanner()" class="bg-white p-6 rounded-xl card-shadow hover:shadow-lg transition-all">
                     <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <span class="text-blue-600 text-xl">💸</span>
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                        </svg>
                     </div>
-                    <p class="font-semibold text-gray-800">Transférer</p>
+                    <h4 class="font-semibold text-gray-800 mb-1">Scanner QR</h4>
+                    <p class="text-sm text-gray-600">Payer un commerçant</p>
                 </button>
 
-                <button onclick="showTopUpModal()" class="bg-white rounded-xl card-shadow p-6 text-center hover:bg-gray-50 transition-colors">
+                <button onclick="showTransferForm()" class="bg-white p-6 rounded-xl card-shadow hover:shadow-lg transition-all">
                     <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <span class="text-green-600 text-xl">💰</span>
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
                     </div>
-                    <p class="font-semibold text-gray-800">Recharger</p>
-                </button>
-
-                <button onclick="showQRScanner()" class="bg-white rounded-xl card-shadow p-6 text-center hover:bg-gray-50 transition-colors">
-                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <span class="text-purple-600 text-xl">📱</span>
-                    </div>
-                    <p class="font-semibold text-gray-800">Scanner QR</p>
-                </button>
-
-                <button onclick="showBillsModal()" class="bg-white rounded-xl card-shadow p-6 text-center hover:bg-gray-50 transition-colors">
-                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <span class="text-orange-600 text-xl">🧾</span>
-                    </div>
-                    <p class="font-semibold text-gray-800">Factures</p>
+                    <h4 class="font-semibold text-gray-800 mb-1">Transférer</h4>
+                    <p class="text-sm text-gray-600">Envoyer de l'argent</p>
                 </button>
             </div>
 
-            <!-- Transactions récentes -->
-            <div class="bg-white rounded-xl card-shadow p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Transactions Récentes</h3>
-                    <button class="text-purple-600 text-sm hover:underline">Voir tout</button>
+            <!-- Services -->
+            <div class="bg-white rounded-xl p-6 card-shadow mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Services</h3>
+                <div class="grid grid-cols-3 gap-4">
+                    <button onclick="showBillPayment()" class="text-center p-4 hover:bg-gray-50 rounded-lg transition-all">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Factures</span>
+                    </button>
+
+                    <button onclick="showTopUp()" class="text-center p-4 hover:bg-gray-50 rounded-lg transition-all">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Crédit</span>
+                    </button>
+
+                    <button onclick="showHistory()" class="text-center p-4 hover:bg-gray-50 rounded-lg transition-all">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Historique</span>
+                    </button>
                 </div>
-                <div class="space-y-4" id="clientTransactions">
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                                <span class="text-red-600">📤</span>
-                            </div>
-                            <div>
-                                <p class="font-semibold text-gray-800">Paiement Supermarché</p>
-                                <p class="text-sm text-gray-600">Aujourd'hui 16:45</p>
-                            </div>
-                        </div>
-                        <p class="font-semibold text-red-600">-12,500 FCFA</p>
-                    </div>
+            </div>
 
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                                <span class="text-green-600">📥</span>
-                            </div>
-                            <div>
-                                <p class="font-semibold text-gray-800">Reçu de Papa</p>
-                                <p class="text-sm text-gray-600">Hier 20:30</p>
-                            </div>
-                        </div>
-                        <p class="font-semibold text-green-600">+50,000 FCFA</p>
-                    </div>
-
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                <span class="text-blue-600">🏪</span>
-                            </div>
-                            <div>
-                                <p class="font-semibold text-gray-800">Achat Pharmacie</p>
-                                <p class="text-sm text-gray-600">Hier 14:20</p>
-                            </div>
-                        </div>
-                        <p class="font-semibold text-red-600">-8,750 FCFA</p>
-                    </div>
+            <!-- Transactions récentes -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Transactions récentes</h3>
+                    <button onclick="showHistory()" class="text-blue-600 text-sm font-medium hover:text-blue-700">
+                        Voir tout
+                    </button>
+                </div>
+                <div id="recentTransactions" class="space-y-3">
+                    <!-- Les transactions seront ajoutées ici -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de transfert -->
-    <div id="transferModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md slide-in">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-gray-800">Transférer de l'argent</h3>
-                <button onclick="closeModal('transferModal')" class="text-gray-500 hover:text-gray-700">
-                    <span class="text-2xl">×</span>
+    <!-- Dashboard Commerçant -->
+    <div id="merchantDashboard" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <header class="gradient-bg text-white p-4 shadow-lg">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-6m-2-5h6m-6 0V9a2 2 0 012-2h2a2 2 0 012 2v7m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v7a2 2 0 002 2m0 0h6"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="font-semibold">Espace Commerçant</h2>
+                        <p class="text-sm opacity-90" id="merchantPhone">+241 12 34 56 78</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="p-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-1">Solde total</p>
+                            <p class="text-2xl font-bold text-gray-800" id="merchantBalance">450 000 FCFA</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-1">Aujourd'hui</p>
+                            <p class="text-2xl font-bold text-gray-800">25 000 FCFA</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-1">Transactions</p>
+                            <p class="text-2xl font-bold text-gray-800">12</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 00-2 2h2a2 2 0 002-2V5a2 2 0 00-2-2H2a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions principales -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <button onclick="showQRGenerator()" class="bg-white p-6 rounded-xl card-shadow hover:shadow-lg transition-all text-left">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-1">Générer QR Code</h4>
+                            <p class="text-sm text-gray-600">Créer un code pour recevoir un paiement</p>
+                        </div>
+                    </div>
+                </button>
+
+                <button onclick="showMerchantHistory()" class="bg-white p-6 rounded-xl card-shadow hover:shadow-lg transition-all text-left">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-1">Historique des ventes</h4>
+                            <p class="text-sm text-gray-600">Consulter toutes les transactions</p>
+                        </div>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Transactions récentes -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Dernières transactions</h3>
+                <div id="merchantTransactions" class="space-y-3">
+                    <!-- Les transactions seront ajoutées ici -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Scanner QR -->
+    <div id="qrScannerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">Scanner QR Code</h3>
+                <button onclick="closeQRScanner()" class="p-2 hover:bg-gray-100 rounded-lg">
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
                 </button>
             </div>
             
-            <form onsubmit="processTransfer(event)" class="space-y-4">
+            <div class="qr-scanner mb-6">
+                <video id="qrVideo" class="w-full h-full object-cover rounded-lg" autoplay muted playsinline></video>
+                <div class="scanner-overlay">
+                    <div class="scanner-frame"></div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <p class="text-gray-600 mb-4">Pointez votre caméra vers le QR code du commerçant</p>
+                <button onclick="simulateQRScan()" class="btn-primary text-white px-6 py-2 rounded-lg">
+                    Simuler un scan (Demo)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Générateur QR -->
+    <div id="qrGeneratorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">Générer QR Code</h3>
+                <button onclick="closeQRGenerator()" class="p-2 hover:bg-gray-100 rounded-lg">
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="qrGeneratorForm" class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Montant (FCFA)</label>
+                    <input type="number" id="qrAmount" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: 5000" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description (optionnel)</label>
+                    <input type="text" id="qrDescription" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: Achat produits">
+                </div>
+                
+                <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
+                    Générer QR Code
+                </button>
+            </form>
+            
+            <div id="qrCodeDisplay" class="hidden text-center">
+                <div id="qrCodeContainer" class="bg-white p-4 rounded-lg border-2 border-gray-200 mb-4"></div>
+                <p class="text-sm text-gray-600 mb-4">Montrez ce QR code au client pour recevoir le paiement</p>
+                <button onclick="resetQRGenerator()" class="text-blue-600 font-medium hover:text-blue-700">
+                    Générer un nouveau code
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Transfert -->
+    <div id="transferModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">Transférer de l'argent</h3>
+                <button onclick="closeTransferModal()" class="p-2 hover:bg-gray-100 rounded-lg">
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="transferForm" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Numéro du destinataire</label>
-                    <input type="tel" id="transferPhone" required 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <input type="tel" id="transferPhone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="+241 XX XX XX XX" required>
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Montant (FCFA)</label>
-                    <input type="number" id="transferAmount" required 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <input type="number" id="transferAmount" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: 10000" required>
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Message (optionnel)</label>
-                    <input type="text" id="transferMessage" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <input type="text" id="transferMessage" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: Remboursement">
                 </div>
                 
-                <button type="submit" 
-                        class="w-full gradient-bg text-white py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
-                    Confirmer le transfert
+                <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
+                    Envoyer
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- Modal de rechargement -->
-    <div id="topUpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md slide-in">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-gray-800">Recharger le compte</h3>
-                <button onclick="closeModal('topUpModal')" class="text-gray-500 hover:text-gray-700">
-                    <span class="text-2xl">×</span>
+    <!-- Modal Paiement Factures -->
+    <div id="billPaymentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">Payer une facture</h3>
+                <button onclick="closeBillPaymentModal()" class="p-2 hover:bg-gray-100 rounded-lg">
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
                 </button>
             </div>
             
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Montant (FCFA)</label>
-                    <input type="number" id="topUpAmount" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Méthode de paiement</label>
-                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                        <option>Orange Money</option>
-                        <option>MTN Mobile Money</option>
-                        <option>Moov Money</option>
-                        <option>Carte bancaire</option>
-                    </select>
-                </div>
-                
-                <button onclick="processTopUp()" 
-                        class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
-                    Recharger maintenant
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scanner QR -->
-    <div id="qrScannerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md slide-in">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-gray-800">Scanner QR Code</h3>
-                <button onclick="closeModal('qrScannerModal')" class="text-gray-500 hover:text-gray-700">
-                    <span class="text-2xl">×</span>
-                </button>
-            </div>
-            
-            <div class="text-center">
-                <div class="w-48 h-48 bg-gray-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                    <div class="animate-pulse-slow">
-                        <span class="text-6xl">📱</span>
-                    </div>
-                </div>
-                <p class="text-gray-600 mb-4">Pointez votre caméra vers le QR code</p>
-                <button onclick="simulateQRScan()" 
-                        class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-                    Simuler scan (Demo)
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de paiement de factures -->
-    <div id="billsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md slide-in">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-gray-800">Payer une facture</h3>
-                <button onclick="closeModal('billsModal')" class="text-gray-500 hover:text-gray-700">
-                    <span class="text-2xl">×</span>
-                </button>
-            </div>
-            
-            <div class="space-y-4">
+            <div class="space-y-4 mb-6">
                 <div class="grid grid-cols-2 gap-3">
-                    <button onclick="selectBillType('electricity')" class="p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 transition-colors text-center">
-                        <span class="text-2xl block mb-2">⚡</span>
+                    <button onclick="selectBillType('electricity')" class="bill-type-btn p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 transition-all" data-type="electricity">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
                         <span class="text-sm font-medium">Électricité</span>
                     </button>
-                    <button onclick="selectBillType('water')" class="p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 transition-colors text-center">
-                        <span class="text-2xl block mb-2">💧</span>
+                    
+                    <button onclick="selectBillType('water')" class="bill-type-btn p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 transition-all" data-type="water">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                            </svg>
+                        </div>
                         <span class="text-sm font-medium">Eau</span>
-                    </button>
-                    <button onclick="selectBillType('internet')" class="p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 transition-colors text-center">
-                        <span class="text-2xl block mb-2">📶</span>
-                        <span class="text-sm font-medium">Internet</span>
-                    </button>
-                    <button onclick="selectBillType('phone')" class="p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 transition-colors text-center">
-                        <span class="text-2xl block mb-2">📞</span>
-                        <span class="text-sm font-medium">Téléphone</span>
-                    </button>
-                </div>
-                
-                <div id="billForm" class="hidden space-y-4">
-                    <input type="text" id="billReference" placeholder="Numéro de référence" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                    <input type="number" id="billAmount" placeholder="Montant (FCFA)" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                    <button onclick="payBill()" 
-                            class="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
-                        Payer la facture
                     </button>
                 </div>
             </div>
+            
+            <form id="billPaymentForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Numéro de compteur</label>
+                    <input type="text" id="meterNumber" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: 123456789" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Montant (FCFA)</label>
+                    <input type="number" id="billAmount" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: 15000" required>
+                </div>
+                
+                <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
+                    Payer la facture
+                </button>
+            </form>
         </div>
     </div>
 
-    <!-- Notifications -->
-    <div id="notification" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 slide-in">
-        <p id="notificationText"></p>
+    <!-- Modal Historique -->
+    <div id="historyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">Historique des transactions</h3>
+                <button onclick="closeHistoryModal()" class="p-2 hover:bg-gray-100 rounded-lg">
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="transactionHistory" class="space-y-3">
+                <!-- L'historique sera généré ici -->
+            </div>
+        </div>
     </div>
 
     <script>
-        // Données utilisateurs simulées
+        // Variables globales
+        let currentUser = null;
+        let transactions = [];
+        let qrStream = null;
+
+        // Données de démonstration
         const users = {
-            '+22512345678': { pin: 'admin123', type: 'merchant', name: 'Boutique Centrale', balance: 2450000 },
-            '+22501234567': { pin: '123456', type: 'client', name: 'Jean Kouassi', balance: 125750 }
+            '+22501234567': {
+                pin: '123456',
+                type: 'client',
+                balance: 125000,
+                name: 'Client Demo'
+            },
+            '+22512345678': {
+                pin: 'admin123',
+                type: 'merchant',
+                balance: 450000,
+                name: 'Commerçant Demo'
+            }
         };
 
-        let currentUser = null;
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
 
-        // Fonction de connexion
-        function login(event) {
-            event.preventDefault();
-            const phone = document.getElementById('phone').value;
-            const pin = document.getElementById('pin').value;
+        function initializeApp() {
+            // Générer quelques transactions de démonstration
+            generateDemoTransactions();
+            
+            // Afficher les transactions récentes
+            updateRecentTransactions();
+            
+            // Event listeners
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('qrGeneratorForm').addEventListener('submit', handleQRGeneration);
+            document.getElementById('transferForm').addEventListener('submit', handleTransfer);
+            document.getElementById('billPaymentForm').addEventListener('submit', handleBillPayment);
+        }
 
+        function generateDemoTransactions() {
+            const demoTransactions = [
+                {
+                    id: 'tx001',
+                    type: 'payment',
+                    amount: 5000,
+                    description: 'Achat épicerie',
+                    date: new Date(Date.now() - 2 * 60 * 60 * 1000),
+                    status: 'completed',
+                    from: '+22501234567',
+                    to: '+22512345678'
+                },
+                {
+                    id: 'tx002',
+                    type: 'transfer',
+                    amount: 15000,
+                    description: 'Transfert famille',
+                    date: new Date(Date.now() - 5 * 60 * 60 * 1000),
+                    status: 'completed',
+                    from: '+22501234567',
+                    to: '+22509876543'
+                },
+                {
+                    id: 'tx003',
+                    type: 'bill',
+                    amount: 8500,
+                    description: 'Facture électricité',
+                    date: new Date(Date.now() - 24 * 60 * 60 * 1000),
+                    status: 'completed',
+                    from: '+22501234567',
+                    to: 'SEEG'
+                }
+            ];
+            
+            transactions = demoTransactions;
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const phone = document.getElementById('phoneNumber').value;
+            const pin = document.getElementById('pinCode').value;
+            
             if (users[phone] && users[phone].pin === pin) {
                 currentUser = { phone, ...users[phone] };
-                document.getElementById('loginPage').classList.add('hidden');
-                document.getElementById('userInfo').classList.remove('hidden');
-                document.getElementById('userName').textContent = currentUser.name;
-
-                if (currentUser.type === 'merchant') {
-                    document.getElementById('merchantDashboard').classList.remove('hidden');
-                    updateMerchantBalance();
+                
+                if (currentUser.type === 'client') {
+                    showClientDashboard();
                 } else {
-                    document.getElementById('clientDashboard').classList.remove('hidden');
-                    updateClientBalance();
+                    showMerchantDashboard();
                 }
-
-                showNotification('Connexion réussie !');
+                
+                showNotification('Connexion réussie !', 'success');
             } else {
                 showNotification('Identifiants incorrects', 'error');
             }
         }
 
-        // Fonction de déconnexion
-        function logout() {
-            currentUser = null;
-            document.getElementById('loginPage').classList.remove('hidden');
+        function showClientDashboard() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('clientDashboard').classList.remove('hidden');
             document.getElementById('merchantDashboard').classList.add('hidden');
+            
+            // Mettre à jour les informations
+            document.getElementById('clientPhone').textContent = currentUser.phone;
+            document.getElementById('clientBalance').textContent = formatCurrency(currentUser.balance);
+            
+            updateRecentTransactions();
+        }
+
+        function showMerchantDashboard() {
+            document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('clientDashboard').classList.add('hidden');
-            document.getElementById('userInfo').classList.add('hidden');
-            document.getElementById('phone').value = '';
-            document.getElementById('pin').value = '';
+            document.getElementById('merchantDashboard').classList.remove('hidden');
+            
+            // Mettre à jour les informations
+            document.getElementById('merchantPhone').textContent = currentUser.phone;
+            document.getElementById('merchantBalance').textContent = formatCurrency(currentUser.balance);
+            
+            updateMerchantTransactions();
         }
 
-        // Mise à jour des soldes
-        function updateMerchantBalance() {
-            document.getElementById('merchantBalance').textContent = 
-                new Intl.NumberFormat('fr-FR').format(currentUser.balance) + ' FCFA';
-        }
-
-        function updateClientBalance() {
-            document.getElementById('clientBalance').textContent = 
-                new Intl.NumberFormat('fr-FR').format(currentUser.balance) + ' FCFA';
-        }
-
-        // Génération QR Code (commerçant)
-        function generateQR() {
-            const amount = document.getElementById('qrAmount').value;
-            const description = document.getElementById('qrDescription').value;
-
-            if (!amount) {
-                showNotification('Veuillez saisir un montant', 'error');
-                return;
+        function updateRecentTransactions() {
+            const container = document.getElementById('recentTransactions');
+            const userTransactions = transactions.filter(t => 
+                t.from === currentUser.phone || t.to === currentUser.phone
+            ).slice(0, 3);
+            
+            container.innerHTML = userTransactions.map(transaction => {
+                const isOutgoing = transaction.from === currentUser.phone;
+                const icon = getTransactionIcon(transaction.type);
+                const color = isOutgoing ? 'text-red-600' : 'text-green-600';
+                const sign = isOutgoing ? '-' : '+';
+                
+                return `
+                    <div class="transaction-item flex items-center justify-between p-3 rounded-lg border border-gray-100">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                                ${icon}
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">${transaction.description}</p>
+                                <p class="text-sm text-gray-500">${formatDate(transaction.date)}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold ${color}">${sign}${formatCurrency(transaction.amount)}</p>
+                            <p class="text-xs text-gray-500">${transaction.status === 'completed' ? 'Terminé' : 'En cours'}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            if (userTransactions.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">Aucune transaction récente</p>';
             }
-
-            document.getElementById('qrDisplay').classList.remove('hidden');
-            showNotification('QR Code généré pour ' + new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA');
         }
 
-        // Demande de paiement (commerçant)
-        function requestPayment() {
-            const phone = document.getElementById('customerPhone').value;
-            const amount = document.getElementById('requestAmount').value;
-
-            if (!phone || !amount) {
-                showNotification('Veuillez remplir tous les champs', 'error');
-                return;
+        function updateMerchantTransactions() {
+            const container = document.getElementById('merchantTransactions');
+            const merchantTransactions = transactions.filter(t => t.to === currentUser.phone).slice(0, 5);
+            
+            container.innerHTML = merchantTransactions.map(transaction => {
+                const icon = getTransactionIcon(transaction.type);
+                
+                return `
+                    <div class="transaction-item flex items-center justify-between p-3 rounded-lg border border-gray-100">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                ${icon}
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">${transaction.description}</p>
+                                <p class="text-sm text-gray-500">De ${transaction.from}</p>
+                                <p class="text-xs text-gray-400">${formatDate(transaction.date)}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-green-600">+${formatCurrency(transaction.amount)}</p>
+                            <p class="text-xs text-gray-500">Reçu</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            if (merchantTransactions.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">Aucune transaction récente</p>';
             }
-
-            showNotification('Demande de paiement envoyée à ' + phone);
-            document.getElementById('customerPhone').value = '';
-            document.getElementById('requestAmount').value = '';
         }
 
-        // Modales
-        function showTransferModal() {
-            document.getElementById('transferModal').classList.remove('hidden');
-        }
-
-        function showTopUpModal() {
-            document.getElementById('topUpModal').classList.remove('hidden');
+        function getTransactionIcon(type) {
+            const icons = {
+                payment: '<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path></svg>',
+                transfer: '<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>',
+                bill: '<svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>'
+            };
+            return icons[type] || icons.payment;
         }
 
         function showQRScanner() {
             document.getElementById('qrScannerModal').classList.remove('hidden');
+            // Simuler l'accès à la caméra (pas de vraie caméra en démo)
         }
 
-        function showBillsModal() {
-            document.getElementById('billsModal').classList.remove('hidden');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-            // Reset forms
-            if (modalId === 'billsModal') {
-                document.getElementById('billForm').classList.add('hidden');
+        function closeQRScanner() {
+            document.getElementById('qrScannerModal').classList.add('hidden');
+            if (qrStream) {
+                qrStream.getTracks().forEach(track => track.stop());
+                qrStream = null;
             }
         }
 
-        // Transfert d'argent
-        function processTransfer(event) {
-            event.preventDefault();
+        function simulateQRScan() {
+            // Simuler un scan réussi
+            const amount = 7500;
+            const merchant = '+22512345678';
+            const description = 'Achat restaurant';
+            
+            closeQRScanner();
+            
+            // Confirmer le paiement
+            if (confirm(`Confirmer le paiement de ${formatCurrency(amount)} à ${merchant} pour "${description}" ?`)) {
+                processPayment(amount, merchant, description);
+            }
+        }
+
+        function processPayment(amount, merchant, description) {
+            if (currentUser.balance >= amount) {
+                // Créer la transaction
+                const transaction = {
+                    id: 'tx' + Date.now(),
+                    type: 'payment',
+                    amount: amount,
+                    description: description,
+                    date: new Date(),
+                    status: 'completed',
+                    from: currentUser.phone,
+                    to: merchant
+                };
+                
+                transactions.unshift(transaction);
+                
+                // Mettre à jour le solde
+                currentUser.balance -= amount;
+                users[currentUser.phone].balance = currentUser.balance;
+                
+                // Mettre à jour l'affichage
+                document.getElementById('clientBalance').textContent = formatCurrency(currentUser.balance);
+                updateRecentTransactions();
+                
+                showNotification(`Paiement de ${formatCurrency(amount)} effectué avec succès !`, 'success');
+            } else {
+                showNotification('Solde insuffisant', 'error');
+            }
+        }
+
+        function showQRGenerator() {
+            document.getElementById('qrGeneratorModal').classList.remove('hidden');
+        }
+
+        function closeQRGenerator() {
+            document.getElementById('qrGeneratorModal').classList.add('hidden');
+            resetQRGenerator();
+        }
+
+        function handleQRGeneration(e) {
+            e.preventDefault();
+            
+            const amount = parseInt(document.getElementById('qrAmount').value);
+            const description = document.getElementById('qrDescription').value || 'Paiement';
+            
+            // Générer le QR code
+            const qrData = JSON.stringify({
+                merchant: currentUser.phone,
+                amount: amount,
+                description: description,
+                timestamp: Date.now()
+            });
+            
+            const qrContainer = document.getElementById('qrCodeContainer');
+            qrContainer.innerHTML = '';
+            
+            QRCode.toCanvas(qrContainer, qrData, {
+                width: 200,
+                height: 200,
+                colorDark: '#667eea',
+                colorLight: '#ffffff'
+            }, function(error) {
+                if (error) {
+                    showNotification('Erreur lors de la génération du QR code', 'error');
+                } else {
+                    document.getElementById('qrGeneratorForm').classList.add('hidden');
+                    document.getElementById('qrCodeDisplay').classList.remove('hidden');
+                }
+            });
+        }
+
+        function resetQRGenerator() {
+            document.getElementById('qrGeneratorForm').classList.remove('hidden');
+            document.getElementById('qrCodeDisplay').classList.add('hidden');
+            document.getElementById('qrGeneratorForm').reset();
+        }
+
+        function showTransferForm() {
+            document.getElementById('transferModal').classList.remove('hidden');
+        }
+
+        function closeTransferModal() {
+            document.getElementById('transferModal').classList.add('hidden');
+            document.getElementById('transferForm').reset();
+        }
+
+        function handleTransfer(e) {
+            e.preventDefault();
+            
             const phone = document.getElementById('transferPhone').value;
             const amount = parseInt(document.getElementById('transferAmount').value);
-            const message = document.getElementById('transferMessage').value;
-
-            if (amount > currentUser.balance) {
-                showNotification('Solde insuffisant', 'error');
-                return;
-            }
-
-            currentUser.balance -= amount;
-            users[currentUser.phone].balance = currentUser.balance;
-            updateClientBalance();
-
-            showNotification('Transfert de ' + new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA envoyé à ' + phone);
-            closeModal('transferModal');
+            const message = document.getElementById('transferMessage').value || 'Transfert';
             
-            // Reset form
-            document.getElementById('transferPhone').value = '';
-            document.getElementById('transferAmount').value = '';
-            document.getElementById('transferMessage').value = '';
-        }
-
-        // Rechargement
-        function processTopUp() {
-            const amount = parseInt(document.getElementById('topUpAmount').value);
-
-            if (!amount || amount <= 0) {
-                showNotification('Montant invalide', 'error');
-                return;
-            }
-
-            currentUser.balance += amount;
-            users[currentUser.phone].balance = currentUser.balance;
-            updateClientBalance();
-
-            showNotification('Compte rechargé de ' + new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA');
-            closeModal('topUpModal');
-            document.getElementById('topUpAmount').value = '';
-        }
-
-        // Scanner QR simulé
-        function simulateQRScan() {
-            closeModal('qrScannerModal');
-            setTimeout(() => {
-                const amount = 15000;
-                const merchant = "Supermarché Central";
+            if (currentUser.balance >= amount) {
+                // Créer la transaction
+                const transaction = {
+                    id: 'tx' + Date.now(),
+                    type: 'transfer',
+                    amount: amount,
+                    description: message,
+                    date: new Date(),
+                    status: 'completed',
+                    from: currentUser.phone,
+                    to: phone
+                };
                 
-                if (confirm(`Payer ${new Intl.NumberFormat('fr-FR').format(amount)} FCFA à ${merchant} ?`)) {
-                    if (amount > currentUser.balance) {
-                        showNotification('Solde insuffisant', 'error');
-                        return;
-                    }
-                    
-                    currentUser.balance -= amount;
-                    users[currentUser.phone].balance = currentUser.balance;
-                    updateClientBalance();
-                    showNotification('Paiement de ' + new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA effectué');
-                }
-            }, 1000);
-        }
-
-        // Paiement de factures
-        function selectBillType(type) {
-            document.getElementById('billForm').classList.remove('hidden');
-            const typeNames = {
-                'electricity': 'Électricité',
-                'water': 'Eau',
-                'internet': 'Internet',
-                'phone': 'Téléphone'
-            };
-            document.getElementById('billReference').placeholder = `Référence ${typeNames[type]}`;
-        }
-
-        function payBill() {
-            const reference = document.getElementById('billReference').value;
-            const amount = parseInt(document.getElementById('billAmount').value);
-
-            if (!reference || !amount) {
-                showNotification('Veuillez remplir tous les champs', 'error');
-                return;
-            }
-
-            if (amount > currentUser.balance) {
+                transactions.unshift(transaction);
+                
+                // Mettre à jour le solde
+                currentUser.balance -= amount;
+                users[currentUser.phone].balance = currentUser.balance;
+                
+                // Mettre à jour l'affichage
+                document.getElementById('clientBalance').textContent = formatCurrency(currentUser.balance);
+                updateRecentTransactions();
+                
+                closeTransferModal();
+                showNotification(`Transfert de ${formatCurrency(amount)} envoyé avec succès !`, 'success');
+            } else {
                 showNotification('Solde insuffisant', 'error');
-                return;
             }
-
-            currentUser.balance -= amount;
-            users[currentUser.phone].balance = currentUser.balance;
-            updateClientBalance();
-
-            showNotification('Facture payée : ' + new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA');
-            closeModal('billsModal');
-            document.getElementById('billReference').value = '';
-            document.getElementById('billAmount').value = '';
         }
 
-        // Système de notifications
+        function showBillPayment() {
+            document.getElementById('billPaymentModal').classList.remove('hidden');
+        }
+
+        function closeBillPaymentModal() {
+            document.getElementById('billPaymentModal').classList.add('hidden');
+            document.getElementById('billPaymentForm').reset();
+            // Réinitialiser la sélection
+            document.querySelectorAll('.bill-type-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'bg-blue-50');
+                btn.classList.add('border-gray-200');
+            });
+        }
+
+        function selectBillType(type) {
+            // Réinitialiser tous les boutons
+            document.querySelectorAll('.bill-type-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'bg-blue-50');
+                btn.classList.add('border-gray-200');
+            });
+            
+            // Sélectionner le bouton cliqué
+            const selectedBtn = document.querySelector(`[data-type="${type}"]`);
+            selectedBtn.classList.remove('border-gray-200');
+            selectedBtn.classList.add('border-blue-500', 'bg-blue-50');
+        }
+
+        function handleBillPayment(e) {
+            e.preventDefault();
+            
+            const meterNumber = document.getElementById('meterNumber').value;
+            const amount = parseInt(document.getElementById('billAmount').value);
+            const selectedType = document.querySelector('.bill-type-btn.border-blue-500');
+            
+            if (!selectedType) {
+                showNotification('Veuillez sélectionner le type de facture', 'error');
+                return;
+            }
+            
+            const billType = selectedType.dataset.type;
+            const billName = billType === 'electricity' ? 'Facture électricité' : 'Facture eau';
+            
+            if (currentUser.balance >= amount) {
+                // Créer la transaction
+                const transaction = {
+                    id: 'tx' + Date.now(),
+                    type: 'bill',
+                    amount: amount,
+                    description: `${billName} - ${meterNumber}`,
+                    date: new Date(),
+                    status: 'completed',
+                    from: currentUser.phone,
+                    to: billType === 'electricity' ? 'SEEG' : 'SEEG-EAU'
+                };
+                
+                transactions.unshift(transaction);
+                
+                // Mettre à jour le solde
+                currentUser.balance -= amount;
+                users[currentUser.phone].balance = currentUser.balance;
+                
+                // Mettre à jour l'affichage
+                document.getElementById('clientBalance').textContent = formatCurrency(currentUser.balance);
+                updateRecentTransactions();
+                
+                closeBillPaymentModal();
+                showNotification(`${billName} payée avec succès !`, 'success');
+            } else {
+                showNotification('Solde insuffisant', 'error');
+            }
+        }
+
+        function showTopUp() {
+            showNotification('Service de crédit téléphonique bientôt disponible', 'info');
+        }
+
+        function showHistory() {
+            document.getElementById('historyModal').classList.remove('hidden');
+            displayFullHistory();
+        }
+
+        function showMerchantHistory() {
+            document.getElementById('historyModal').classList.remove('hidden');
+            displayMerchantHistory();
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.add('hidden');
+        }
+
+        function displayFullHistory() {
+            const container = document.getElementById('transactionHistory');
+            const userTransactions = transactions.filter(t => 
+                t.from === currentUser.phone || t.to === currentUser.phone
+            );
+            
+            container.innerHTML = userTransactions.map(transaction => {
+                const isOutgoing = transaction.from === currentUser.phone;
+                const icon = getTransactionIcon(transaction.type);
+                const color = isOutgoing ? 'text-red-600' : 'text-green-600';
+                const sign = isOutgoing ? '-' : '+';
+                
+                return `
+                    <div class="transaction-item flex items-center justify-between p-4 rounded-lg border border-gray-100">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                                ${icon}
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">${transaction.description}</p>
+                                <p class="text-sm text-gray-500">${isOutgoing ? 'Vers ' + transaction.to : 'De ' + transaction.from}</p>
+                                <p class="text-xs text-gray-400">${formatDate(transaction.date)}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold ${color}">${sign}${formatCurrency(transaction.amount)}</p>
+                            <p class="text-xs text-gray-500">${transaction.status === 'completed' ? 'Terminé' : 'En cours'}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            if (userTransactions.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">Aucune transaction trouvée</p>';
+            }
+        }
+
+        function displayMerchantHistory() {
+            const container = document.getElementById('transactionHistory');
+            const merchantTransactions = transactions.filter(t => t.to === currentUser.phone);
+            
+            container.innerHTML = merchantTransactions.map(transaction => {
+                const icon = getTransactionIcon(transaction.type);
+                
+                return `
+                    <div class="transaction-item flex items-center justify-between p-4 rounded-lg border border-gray-100">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                ${icon}
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">${transaction.description}</p>
+                                <p class="text-sm text-gray-500">De ${transaction.from}</p>
+                                <p class="text-xs text-gray-400">${formatDate(transaction.date)}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-green-600">+${formatCurrency(transaction.amount)}</p>
+                            <p class="text-xs text-gray-500">Reçu</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            if (merchantTransactions.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">Aucune vente trouvée</p>';
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('clientDashboard').classList.add('hidden');
+            document.getElementById('merchantDashboard').classList.add('hidden');
+            
+            // Réinitialiser le formulaire
+            document.getElementById('loginForm').reset();
+            
+            showNotification('Déconnexion réussie', 'success');
+        }
+
         function showNotification(message, type = 'success') {
             const notification = document.getElementById('notification');
             const notificationText = document.getElementById('notificationText');
             
             notificationText.textContent = message;
-            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 slide-in ${
-                type === 'error' ? 'bg-red-500' : 'bg-green-500'
-            } text-white`;
             
-            notification.classList.remove('hidden');
+            // Changer la couleur selon le type
+            notification.className = 'notification';
+            if (type === 'success') {
+                notification.classList.add('bg-green-500');
+            } else if (type === 'error') {
+                notification.classList.add('bg-red-500');
+            } else if (type === 'info') {
+                notification.classList.add('bg-blue-500');
+            }
             
+            notification.classList.add('show');
+            
+            // Masquer automatiquement après 3 secondes
             setTimeout(() => {
-                notification.classList.add('hidden');
+                hideNotification();
             }, 3000);
         }
 
-        // Fermer les modales en cliquant à l'extérieur
-        window.onclick = function(event) {
-            const modals = ['transferModal', 'topUpModal', 'qrScannerModal', 'billsModal'];
-            modals.forEach(modalId => {
-                const modal = document.getElementById(modalId);
-                if (event.target === modal) {
-                    closeModal(modalId);
-                }
+        function hideNotification() {
+            document.getElementById('notification').classList.remove('show');
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
+        }
+
+        function formatDate(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 1) return 'À l\'instant';
+            if (minutes < 60) return `Il y a ${minutes} min`;
+            if (hours < 24) return `Il y a ${hours}h`;
+            if (days < 7) return `Il y a ${days} jour${days > 1 ? 's' : ''}`;
+            
+            return date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
             });
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97ffe43ff687534d',t:'MTc1ODAyMDc1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98000bae41205352',t:'MTc1ODAyMjM3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
