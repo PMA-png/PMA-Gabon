@@ -8,6 +8,10 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <style>
+        body {
+            box-sizing: border-box;
+        }
+        
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
         * {
@@ -138,6 +142,10 @@
             background-color: #f8fafc;
             transform: translateX(4px);
         }
+        
+        .loyalty-progress {
+            background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -163,7 +171,7 @@
                     </svg>
                 </div>
                 <h1 class="text-3xl font-bold text-gray-800 mb-2">Porte Monnaie Avoir</h1>
-                <p class="text-gray-600">Votre solution de paiement mobile</p>
+                <p class="text-gray-600">Fini la perte de monnaie ! Récupérez vos avoirs</p>
             </div>
             
             <form id="loginForm" class="space-y-6">
@@ -183,8 +191,19 @@
             </form>
             
             <div class="mt-6 text-center">
-                <p class="text-sm text-gray-600">Comptes de démonstration :</p>
-                <div class="mt-2 space-y-1 text-xs text-gray-500">
+                <p class="text-sm text-gray-600">💡 Plus jamais de monnaie perdue !</p>
+                <div class="mt-4 space-y-2">
+                    <p class="text-xs text-gray-500 mb-2">Connexion rapide (démo) :</p>
+                    <div class="flex gap-2">
+                        <button onclick="quickLogin('client')" class="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-xs font-medium hover:bg-blue-200 transition-colors">
+                            👤 Client
+                        </button>
+                        <button onclick="quickLogin('merchant')" class="flex-1 bg-purple-100 text-purple-700 px-3 py-2 rounded-lg text-xs font-medium hover:bg-purple-200 transition-colors">
+                            🏪 Commerçant
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-3 space-y-1 text-xs text-gray-400">
                     <p><strong>Commerçant :</strong> +22512345678 / admin123</p>
                     <p><strong>Client :</strong> +22501234567 / 123456</p>
                 </div>
@@ -220,14 +239,69 @@
         <div class="p-4">
             <div class="balance-card rounded-2xl p-6 mb-6 card-shadow">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-medium opacity-90">Solde disponible</h3>
+                    <h3 class="text-lg font-medium opacity-90">Mes avoirs disponibles</h3>
                     <svg class="w-6 h-6 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
                     </svg>
                 </div>
-                <div class="text-3xl font-bold mb-2" id="clientBalance">125 000 FCFA</div>
-                <p class="text-sm opacity-75">Dernière mise à jour : maintenant</p>
+                <div class="text-3xl font-bold mb-2" id="clientBalance">1 250 FCFA</div>
+                <p class="text-sm opacity-75">💰 Économisé grâce aux avoirs !</p>
+            </div>
+
+            <!-- Programme de Fidélité -->
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 mb-6 border border-yellow-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Programme Fidélité</h3>
+                            <p class="text-sm text-gray-600">Niveau : <span class="font-medium text-yellow-600">Bronze ⭐</span></p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-bold text-yellow-600" id="loyaltyPoints">1,240</p>
+                        <p class="text-sm text-gray-600">points</p>
+                    </div>
+                </div>
+                
+                <!-- Barre de progression -->
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>Progression vers Argent</span>
+                        <span>1,240 / 2,000 pts</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="loyalty-progress h-3 rounded-full" style="width: 62%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Plus que 760 points pour le niveau Argent ! 🥈</p>
+                </div>
+                
+                <!-- Récompenses disponibles -->
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="claimReward('coffee')" class="bg-white p-3 rounded-lg border border-yellow-200 hover:bg-yellow-50 transition-all text-left">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-2">☕</span>
+                            <div>
+                                <p class="font-medium text-gray-800 text-sm">Café gratuit</p>
+                                <p class="text-xs text-gray-600">200 pts</p>
+                            </div>
+                        </div>
+                    </button>
+                    
+                    <button onclick="claimReward('discount')" class="bg-white p-3 rounded-lg border border-yellow-200 hover:bg-yellow-50 transition-all text-left">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-2">🎫</span>
+                            <div>
+                                <p class="font-medium text-gray-800 text-sm">-10% prochain achat</p>
+                                <p class="text-xs text-gray-600">500 pts</p>
+                            </div>
+                        </div>
+                    </button>
+                </div>
             </div>
 
             <!-- Actions rapides -->
@@ -239,7 +313,7 @@
                         </svg>
                     </div>
                     <h4 class="font-semibold text-gray-800 mb-1">Scanner QR</h4>
-                    <p class="text-sm text-gray-600">Payer un commerçant</p>
+                    <p class="text-sm text-gray-600">Utiliser mes avoirs</p>
                 </button>
 
                 <button onclick="showTransferForm()" class="bg-white p-6 rounded-xl card-shadow hover:shadow-lg transition-all">
@@ -249,47 +323,94 @@
                         </svg>
                     </div>
                     <h4 class="font-semibold text-gray-800 mb-1">Transférer</h4>
-                    <p class="text-sm text-gray-600">Envoyer de l'argent</p>
+                    <p class="text-sm text-gray-600">Partager mes avoirs</p>
                 </button>
+            </div>
+
+            <!-- Explication du concept -->
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-6 border border-blue-100">
+                <div class="flex items-start">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-2">Comment ça marche ?</h3>
+                        <p class="text-sm text-gray-600 mb-2">
+                            <strong>Problème :</strong> Achat de 2 475 FCFA, vous payez 2 500 FCFA mais le commerçant n'a pas 25 FCFA à rendre.
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            <strong>Solution :</strong> Recevez 25 FCFA d'avoir dans votre porte-monnaie ! Utilisez-les lors de votre prochain achat.
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- Services -->
             <div class="bg-white rounded-xl p-6 card-shadow mb-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Services</h3>
-                <div class="grid grid-cols-3 gap-4">
-                    <button onclick="showBillPayment()" class="text-center p-4 hover:bg-gray-50 rounded-lg transition-all">
-                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Mes avoirs par magasin</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-6m-2-5h6m-6 0V9a2 2 0 012-2h2a2 2 0 012 2v7m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v7a2 2 0 002 2m0 0h6"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Épicerie du Quartier</p>
+                                <p class="text-sm text-gray-500">3 visites • ⭐ 340 pts fidélité</p>
+                            </div>
                         </div>
-                        <span class="text-sm font-medium text-gray-700">Factures</span>
-                    </button>
-
-                    <button onclick="showTopUp()" class="text-center p-4 hover:bg-gray-50 rounded-lg transition-all">
-                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                            </svg>
+                        <div class="text-right">
+                            <p class="font-semibold text-green-600">450 FCFA</p>
+                            <p class="text-xs text-gray-500">Disponible</p>
                         </div>
-                        <span class="text-sm font-medium text-gray-700">Crédit</span>
-                    </button>
-
-                    <button onclick="showHistory()" class="text-center p-4 hover:bg-gray-50 rounded-lg transition-all">
-                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Librairie Centrale</p>
+                                <p class="text-sm text-gray-500">1 visite • ⭐ 120 pts fidélité</p>
+                            </div>
                         </div>
-                        <span class="text-sm font-medium text-gray-700">Historique</span>
-                    </button>
+                        <div class="text-right">
+                            <p class="font-semibold text-green-600">800 FCFA</p>
+                            <p class="text-xs text-gray-500">Disponible</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Café du Port</p>
+                                <p class="text-sm text-gray-500">7 visites • ⭐ 780 pts fidélité</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-green-600">0 FCFA</p>
+                            <p class="text-xs text-gray-500">Client VIP 👑</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Transactions récentes -->
             <div class="bg-white rounded-xl p-6 card-shadow">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Transactions récentes</h3>
+                    <h3 class="text-lg font-semibold text-gray-800">Avoirs récents</h3>
                     <button onclick="showHistory()" class="text-blue-600 text-sm font-medium hover:text-blue-700">
                         Voir tout
                     </button>
@@ -331,11 +452,11 @@
                 <div class="bg-white rounded-xl p-6 card-shadow">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm text-gray-600 mb-1">Solde total</p>
-                            <p class="text-2xl font-bold text-gray-800" id="merchantBalance">450 000 FCFA</p>
+                            <p class="text-sm text-gray-600 mb-1">Avoirs distribués</p>
+                            <p class="text-2xl font-bold text-gray-800" id="merchantBalance">4 500 FCFA</p>
                         </div>
-                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
                             </svg>
                         </div>
@@ -345,12 +466,12 @@
                 <div class="bg-white rounded-xl p-6 card-shadow">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm text-gray-600 mb-1">Aujourd'hui</p>
-                            <p class="text-2xl font-bold text-gray-800">25 000 FCFA</p>
+                            <p class="text-sm text-gray-600 mb-1">Points fidélité donnés</p>
+                            <p class="text-2xl font-bold text-gray-800">2,340</p>
                         </div>
-                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
                             </svg>
                         </div>
                     </div>
@@ -359,12 +480,12 @@
                 <div class="bg-white rounded-xl p-6 card-shadow">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm text-gray-600 mb-1">Transactions</p>
+                            <p class="text-sm text-gray-600 mb-1">Clients fidèles</p>
                             <p class="text-2xl font-bold text-gray-800">12</p>
                         </div>
                         <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
                             <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 00-2 2h2a2 2 0 002-2V5a2 2 0 00-2-2H2a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
                         </div>
                     </div>
@@ -373,6 +494,20 @@
 
             <!-- Actions principales -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <button onclick="showCreateCredit()" class="bg-white p-6 rounded-xl card-shadow hover:shadow-lg transition-all text-left">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-1">Créer un avoir</h4>
+                            <p class="text-sm text-gray-600">Donner un avoir au lieu de rendre la monnaie</p>
+                        </div>
+                    </div>
+                </button>
+
                 <button onclick="showQRGenerator()" class="bg-white p-6 rounded-xl card-shadow hover:shadow-lg transition-all text-left">
                     <div class="flex items-center">
                         <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
@@ -381,30 +516,62 @@
                             </svg>
                         </div>
                         <div>
-                            <h4 class="font-semibold text-gray-800 mb-1">Générer QR Code</h4>
-                            <p class="text-sm text-gray-600">Créer un code pour recevoir un paiement</p>
-                        </div>
-                    </div>
-                </button>
-
-                <button onclick="showMerchantHistory()" class="bg-white p-6 rounded-xl card-shadow hover:shadow-lg transition-all text-left">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-gray-800 mb-1">Historique des ventes</h4>
-                            <p class="text-sm text-gray-600">Consulter toutes les transactions</p>
+                            <h4 class="font-semibold text-gray-800 mb-1">QR pour utilisation</h4>
+                            <p class="text-sm text-gray-600">Client utilise ses avoirs chez vous</p>
                         </div>
                     </div>
                 </button>
             </div>
 
+            <!-- Programme de fidélité commerçant -->
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 mb-6 border border-yellow-200">
+                <h3 class="font-semibold text-gray-800 mb-3">🌟 Programme de Fidélité</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                    <div class="flex items-start">
+                        <span class="text-yellow-600 mr-2">⭐</span>
+                        <span>1 FCFA d'achat = 1 point fidélité automatique</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-yellow-600 mr-2">🎁</span>
+                        <span>Bonus spéciaux : anniversaires, parrainages</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-yellow-600 mr-2">👑</span>
+                        <span>Niveaux : Bronze → Argent → Or → Platine</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-yellow-600 mr-2">💝</span>
+                        <span>Récompenses personnalisables par niveau</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Avantages pour le commerçant -->
+            <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 mb-6 border border-green-100">
+                <h3 class="font-semibold text-gray-800 mb-3">💡 Pourquoi utiliser les avoirs ?</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                    <div class="flex items-start">
+                        <span class="text-green-600 mr-2">✓</span>
+                        <span>Plus besoin de chercher la petite monnaie</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-green-600 mr-2">✓</span>
+                        <span>Clients fidélisés (ils reviennent utiliser leurs avoirs)</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-green-600 mr-2">✓</span>
+                        <span>Transactions plus rapides</span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-green-600 mr-2">✓</span>
+                        <span>Clients satisfaits (ne perdent plus d'argent)</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Transactions récentes -->
             <div class="bg-white rounded-xl p-6 card-shadow">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Dernières transactions</h3>
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Avoirs récents distribués</h3>
                 <div id="merchantTransactions" class="space-y-3">
                     <!-- Les transactions seront ajoutées ici -->
                 </div>
@@ -412,11 +579,60 @@
         </div>
     </div>
 
+    <!-- Modal Créer Avoir -->
+    <div id="createCreditModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">Créer un avoir client</h3>
+                <button onclick="closeCreateCreditModal()" class="p-2 hover:bg-gray-100 rounded-lg">
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="createCreditForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Numéro du client</label>
+                    <input type="tel" id="creditClientPhone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="+241 XX XX XX XX" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Montant de l'avoir (FCFA)</label>
+                    <input type="number" id="creditAmount" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: 25" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Raison</label>
+                    <select id="creditReason" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="monnaie">Pas de monnaie à rendre</option>
+                        <option value="fidelite">Bonus fidélité (+ points)</option>
+                        <option value="promotion">Promotion spéciale</option>
+                        <option value="parrainage">Parrainage client</option>
+                        <option value="anniversaire">Anniversaire client</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+                
+                <div id="loyaltyPointsSection" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Points fidélité bonus</label>
+                    <input type="number" id="loyaltyPointsBonus" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: 50">
+                    <p class="text-xs text-gray-500 mt-1">Points supplémentaires à ajouter (optionnel)</p>
+                </div>
+                
+                <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
+                    Créer l'avoir
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal Scanner QR -->
     <div id="qrScannerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-semibold text-gray-800">Scanner QR Code</h3>
+                <h3 class="text-xl font-semibold text-gray-800">Utiliser mes avoirs</h3>
                 <button onclick="closeQRScanner()" class="p-2 hover:bg-gray-100 rounded-lg">
                     <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -432,7 +648,7 @@
             </div>
             
             <div class="text-center">
-                <p class="text-gray-600 mb-4">Pointez votre caméra vers le QR code du commerçant</p>
+                <p class="text-gray-600 mb-4">Scannez le QR code du commerçant pour utiliser vos avoirs</p>
                 <button onclick="simulateQRScan()" class="btn-primary text-white px-6 py-2 rounded-lg">
                     Simuler un scan (Demo)
                 </button>
@@ -444,7 +660,7 @@
     <div id="qrGeneratorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-semibold text-gray-800">Générer QR Code</h3>
+                <h3 class="text-xl font-semibold text-gray-800">QR Code pour utilisation d'avoirs</h3>
                 <button onclick="closeQRGenerator()" class="p-2 hover:bg-gray-100 rounded-lg">
                     <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -454,13 +670,13 @@
             
             <form id="qrGeneratorForm" class="space-y-4 mb-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Montant (FCFA)</label>
-                    <input type="number" id="qrAmount" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: 5000" required>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Montant maximum utilisable (FCFA)</label>
+                    <input type="number" id="qrAmount" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: 500" required>
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Description (optionnel)</label>
-                    <input type="text" id="qrDescription" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: Achat produits">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <input type="text" id="qrDescription" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: Utilisation avoirs" value="Utilisation avoirs">
                 </div>
                 
                 <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
@@ -470,7 +686,7 @@
             
             <div id="qrCodeDisplay" class="hidden text-center">
                 <div id="qrCodeContainer" class="bg-white p-4 rounded-lg border-2 border-gray-200 mb-4"></div>
-                <p class="text-sm text-gray-600 mb-4">Montrez ce QR code au client pour recevoir le paiement</p>
+                <p class="text-sm text-gray-600 mb-4">Le client peut scanner ce code pour utiliser ses avoirs chez vous</p>
                 <button onclick="resetQRGenerator()" class="text-blue-600 font-medium hover:text-blue-700">
                     Générer un nouveau code
                 </button>
@@ -482,7 +698,7 @@
     <div id="transferModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-semibold text-gray-800">Transférer de l'argent</h3>
+                <h3 class="text-xl font-semibold text-gray-800">Partager mes avoirs</h3>
                 <button onclick="closeTransferModal()" class="p-2 hover:bg-gray-100 rounded-lg">
                     <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -497,69 +713,17 @@
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Montant (FCFA)</label>
-                    <input type="number" id="transferAmount" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: 10000" required>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Montant d'avoirs (FCFA)</label>
+                    <input type="number" id="transferAmount" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: 100" required>
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Message (optionnel)</label>
-                    <input type="text" id="transferMessage" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: Remboursement">
+                    <input type="text" id="transferMessage" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: Cadeau">
                 </div>
                 
                 <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
-                    Envoyer
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Paiement Factures -->
-    <div id="billPaymentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-semibold text-gray-800">Payer une facture</h3>
-                <button onclick="closeBillPaymentModal()" class="p-2 hover:bg-gray-100 rounded-lg">
-                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            
-            <div class="space-y-4 mb-6">
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="selectBillType('electricity')" class="bill-type-btn p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 transition-all" data-type="electricity">
-                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                            <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                        </div>
-                        <span class="text-sm font-medium">Électricité</span>
-                    </button>
-                    
-                    <button onclick="selectBillType('water')" class="bill-type-btn p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 transition-all" data-type="water">
-                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
-                            </svg>
-                        </div>
-                        <span class="text-sm font-medium">Eau</span>
-                    </button>
-                </div>
-            </div>
-            
-            <form id="billPaymentForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Numéro de compteur</label>
-                    <input type="text" id="meterNumber" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: 123456789" required>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Montant (FCFA)</label>
-                    <input type="number" id="billAmount" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Ex: 15000" required>
-                </div>
-                
-                <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
-                    Payer la facture
+                    Partager
                 </button>
             </form>
         </div>
@@ -569,7 +733,7 @@
     <div id="historyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-semibold text-gray-800">Historique des transactions</h3>
+                <h3 class="text-xl font-semibold text-gray-800">Historique des avoirs</h3>
                 <button onclick="closeHistoryModal()" class="p-2 hover:bg-gray-100 rounded-lg">
                     <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -588,19 +752,35 @@
         let currentUser = null;
         let transactions = [];
         let qrStream = null;
+        let loyaltyPoints = 1240;
 
         // Données de démonstration
         const users = {
             '+22501234567': {
                 pin: '123456',
                 type: 'client',
-                balance: 125000,
+                balance: 1250,
+                loyaltyPoints: 1240,
                 name: 'Client Demo'
             },
             '+22512345678': {
                 pin: 'admin123',
                 type: 'merchant',
-                balance: 450000,
+                balance: 4500,
+                name: 'Commerçant Demo'
+            },
+            // Versions sans le + pour plus de flexibilité
+            '22501234567': {
+                pin: '123456',
+                type: 'client',
+                balance: 1250,
+                loyaltyPoints: 1240,
+                name: 'Client Demo'
+            },
+            '22512345678': {
+                pin: 'admin123',
+                type: 'merchant',
+                balance: 4500,
                 name: 'Commerçant Demo'
             }
         };
@@ -621,40 +801,56 @@
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
             document.getElementById('qrGeneratorForm').addEventListener('submit', handleQRGeneration);
             document.getElementById('transferForm').addEventListener('submit', handleTransfer);
-            document.getElementById('billPaymentForm').addEventListener('submit', handleBillPayment);
+            document.getElementById('createCreditForm').addEventListener('submit', handleCreateCredit);
+            
+            // Event listener pour afficher/masquer les points fidélité
+            document.getElementById('creditReason').addEventListener('change', function() {
+                const loyaltySection = document.getElementById('loyaltyPointsSection');
+                if (this.value === 'fidelite') {
+                    loyaltySection.classList.remove('hidden');
+                } else {
+                    loyaltySection.classList.add('hidden');
+                }
+            });
         }
 
         function generateDemoTransactions() {
             const demoTransactions = [
                 {
                     id: 'tx001',
-                    type: 'payment',
-                    amount: 5000,
-                    description: 'Achat épicerie',
+                    type: 'credit_received',
+                    amount: 50,
+                    loyaltyPoints: 25,
+                    description: 'Avoir reçu - Épicerie du Quartier',
                     date: new Date(Date.now() - 2 * 60 * 60 * 1000),
                     status: 'completed',
-                    from: '+22501234567',
-                    to: '+22512345678'
+                    from: '+22512345678',
+                    to: '+22501234567',
+                    reason: 'Pas de monnaie à rendre'
                 },
                 {
                     id: 'tx002',
-                    type: 'transfer',
-                    amount: 15000,
-                    description: 'Transfert famille',
+                    type: 'credit_used',
+                    amount: 150,
+                    loyaltyPoints: 75,
+                    description: 'Avoir utilisé - Librairie Centrale',
                     date: new Date(Date.now() - 5 * 60 * 60 * 1000),
                     status: 'completed',
                     from: '+22501234567',
-                    to: '+22509876543'
+                    to: '+22512345679',
+                    reason: 'Utilisation avoirs'
                 },
                 {
                     id: 'tx003',
-                    type: 'bill',
-                    amount: 8500,
-                    description: 'Facture électricité',
+                    type: 'loyalty_bonus',
+                    amount: 100,
+                    loyaltyPoints: 200,
+                    description: 'Bonus fidélité - Restaurant du Port',
                     date: new Date(Date.now() - 24 * 60 * 60 * 1000),
                     status: 'completed',
-                    from: '+22501234567',
-                    to: 'SEEG'
+                    from: '+22512345680',
+                    to: '+22501234567',
+                    reason: 'Bonus fidélité'
                 }
             ];
             
@@ -664,21 +860,65 @@
         function handleLogin(e) {
             e.preventDefault();
             
-            const phone = document.getElementById('phoneNumber').value;
-            const pin = document.getElementById('pinCode').value;
+            let phone = document.getElementById('phoneNumber').value.trim();
+            const pin = document.getElementById('pinCode').value.trim();
             
-            if (users[phone] && users[phone].pin === pin) {
-                currentUser = { phone, ...users[phone] };
-                
-                if (currentUser.type === 'client') {
-                    showClientDashboard();
-                } else {
-                    showMerchantDashboard();
+            console.log('=== DÉBUT CONNEXION ===');
+            console.log('Téléphone saisi:', phone);
+            console.log('PIN saisi:', pin);
+            
+            // Nettoyer le numéro de téléphone (enlever espaces, tirets, etc.)
+            phone = phone.replace(/[\s\-\(\)]/g, '');
+            
+            // Normaliser le numéro - essayer différentes variantes
+            const phoneVariants = [
+                phone,
+                '+' + phone,
+                phone.replace('+', ''),
+                '+225' + phone.replace(/^\+?225/, ''),
+                phone.replace(/^\+?225/, '')
+            ];
+            
+            console.log('Variantes testées:', phoneVariants);
+            console.log('Utilisateurs disponibles:', Object.keys(users));
+            
+            let user = null;
+            let normalizedPhone = phone;
+            
+            // Chercher l'utilisateur avec toutes les variantes
+            for (const variant of phoneVariants) {
+                console.log(`Test variant: "${variant}"`);
+                if (users[variant]) {
+                    user = users[variant];
+                    normalizedPhone = variant;
+                    console.log('✅ Utilisateur trouvé:', user);
+                    break;
                 }
+            }
+            
+            console.log('Utilisateur final:', user);
+            console.log('PIN attendu:', user ? user.pin : 'N/A');
+            console.log('PIN fourni:', pin);
+            
+            if (user && user.pin === pin) {
+                currentUser = { phone: normalizedPhone, ...user };
+                console.log('✅ Connexion réussie, type:', currentUser.type);
                 
-                showNotification('Connexion réussie !', 'success');
+                // Forcer l'affichage du bon dashboard
+                setTimeout(() => {
+                    if (currentUser.type === 'client') {
+                        console.log('Affichage dashboard client');
+                        showClientDashboard();
+                    } else if (currentUser.type === 'merchant') {
+                        console.log('Affichage dashboard commerçant');
+                        showMerchantDashboard();
+                    }
+                    showNotification('Connexion réussie !', 'success');
+                }, 50);
+                
             } else {
-                showNotification('Identifiants incorrects', 'error');
+                console.log('❌ Échec de connexion');
+                showNotification('Identifiants incorrects. Utilisez les boutons de connexion rapide pour tester !', 'error');
             }
         }
 
@@ -690,6 +930,7 @@
             // Mettre à jour les informations
             document.getElementById('clientPhone').textContent = currentUser.phone;
             document.getElementById('clientBalance').textContent = formatCurrency(currentUser.balance);
+            document.getElementById('loyaltyPoints').textContent = formatNumber(currentUser.loyaltyPoints || loyaltyPoints);
             
             updateRecentTransactions();
         }
@@ -713,10 +954,11 @@
             ).slice(0, 3);
             
             container.innerHTML = userTransactions.map(transaction => {
-                const isOutgoing = transaction.from === currentUser.phone;
+                const isReceived = transaction.to === currentUser.phone;
                 const icon = getTransactionIcon(transaction.type);
-                const color = isOutgoing ? 'text-red-600' : 'text-green-600';
-                const sign = isOutgoing ? '-' : '+';
+                const color = isReceived ? 'text-green-600' : 'text-blue-600';
+                const sign = isReceived ? '+' : '-';
+                const loyaltyInfo = transaction.loyaltyPoints ? `<p class="text-xs text-yellow-600">+${transaction.loyaltyPoints} pts fidélité</p>` : '';
                 
                 return `
                     <div class="transaction-item flex items-center justify-between p-3 rounded-lg border border-gray-100">
@@ -727,65 +969,224 @@
                             <div>
                                 <p class="font-medium text-gray-800">${transaction.description}</p>
                                 <p class="text-sm text-gray-500">${formatDate(transaction.date)}</p>
+                                ${loyaltyInfo}
                             </div>
                         </div>
                         <div class="text-right">
                             <p class="font-semibold ${color}">${sign}${formatCurrency(transaction.amount)}</p>
-                            <p class="text-xs text-gray-500">${transaction.status === 'completed' ? 'Terminé' : 'En cours'}</p>
+                            <p class="text-xs text-gray-500">${isReceived ? 'Reçu' : 'Utilisé'}</p>
                         </div>
                     </div>
                 `;
             }).join('');
             
             if (userTransactions.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-4">Aucune transaction récente</p>';
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">Aucun avoir récent</p>';
             }
         }
 
         function updateMerchantTransactions() {
             const container = document.getElementById('merchantTransactions');
-            const merchantTransactions = transactions.filter(t => t.to === currentUser.phone).slice(0, 5);
+            const merchantTransactions = transactions.filter(t => t.from === currentUser.phone).slice(0, 5);
             
             container.innerHTML = merchantTransactions.map(transaction => {
                 const icon = getTransactionIcon(transaction.type);
+                const loyaltyInfo = transaction.loyaltyPoints ? `<p class="text-xs text-yellow-600">+${transaction.loyaltyPoints} pts donnés</p>` : '';
                 
                 return `
                     <div class="transaction-item flex items-center justify-between p-3 rounded-lg border border-gray-100">
                         <div class="flex items-center">
-                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                            <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mr-3">
                                 ${icon}
                             </div>
                             <div>
-                                <p class="font-medium text-gray-800">${transaction.description}</p>
-                                <p class="text-sm text-gray-500">De ${transaction.from}</p>
+                                <p class="font-medium text-gray-800">Avoir créé</p>
+                                <p class="text-sm text-gray-500">Pour ${transaction.to}</p>
                                 <p class="text-xs text-gray-400">${formatDate(transaction.date)}</p>
+                                ${loyaltyInfo}
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="font-semibold text-green-600">+${formatCurrency(transaction.amount)}</p>
-                            <p class="text-xs text-gray-500">Reçu</p>
+                            <p class="font-semibold text-orange-600">${formatCurrency(transaction.amount)}</p>
+                            <p class="text-xs text-gray-500">Distribué</p>
                         </div>
                     </div>
                 `;
             }).join('');
             
             if (merchantTransactions.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-4">Aucune transaction récente</p>';
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">Aucun avoir distribué récemment</p>';
             }
         }
 
         function getTransactionIcon(type) {
             const icons = {
-                payment: '<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path></svg>',
-                transfer: '<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>',
-                bill: '<svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>'
+                credit_received: '<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>',
+                credit_used: '<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>',
+                loyalty_bonus: '<svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>',
+                reward_claimed: '<svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path></svg>',
+                transfer: '<svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>'
             };
-            return icons[type] || icons.payment;
+            return icons[type] || icons.credit_received;
+        }
+
+        function claimReward(rewardType) {
+            console.log('=== ÉCHANGE DE RÉCOMPENSE ===');
+            console.log('Type de récompense:', rewardType);
+            console.log('Utilisateur actuel:', currentUser);
+            
+            if (!currentUser) {
+                console.log('❌ Pas d\'utilisateur connecté');
+                showNotification('Veuillez vous connecter d\'abord', 'error');
+                return;
+            }
+            
+            const rewards = {
+                coffee: { name: 'Café gratuit ☕', points: 200, value: 150 },
+                discount: { name: 'Réduction 10% 🎫', points: 500, value: 0 }
+            };
+            
+            const reward = rewards[rewardType];
+            if (!reward) {
+                console.log('❌ Récompense non trouvée');
+                showNotification('Récompense non disponible', 'error');
+                return;
+            }
+            
+            console.log('Récompense sélectionnée:', reward);
+            
+            // Vérifier si l'utilisateur a assez de points
+            const currentPoints = currentUser.loyaltyPoints || 1240;
+            console.log('Points actuels:', currentPoints);
+            console.log('Points requis:', reward.points);
+            
+            if (currentPoints >= reward.points) {
+                console.log('✅ Points suffisants - Échange automatique');
+                
+                try {
+                    // Déduire les points
+                    const newPoints = currentPoints - reward.points;
+                    currentUser.loyaltyPoints = newPoints;
+                    
+                    // Sauvegarder dans les données utilisateur
+                    if (users[currentUser.phone]) {
+                        users[currentUser.phone].loyaltyPoints = newPoints;
+                    }
+                    
+                    // Mettre à jour l'affichage des points immédiatement
+                    const loyaltyElement = document.getElementById('loyaltyPoints');
+                    if (loyaltyElement) {
+                        loyaltyElement.textContent = formatNumber(newPoints);
+                    }
+                    
+                    // Créer une transaction pour l'historique
+                    const transaction = {
+                        id: 'tx' + Date.now(),
+                        type: 'reward_claimed',
+                        amount: reward.value,
+                        loyaltyPoints: -reward.points,
+                        description: `Récompense échangée - ${reward.name}`,
+                        date: new Date(),
+                        status: 'completed',
+                        from: currentUser.phone,
+                        to: 'SYSTEM',
+                        reason: 'Échange de points fidélité'
+                    };
+                    
+                    transactions.unshift(transaction);
+                    console.log('Transaction créée:', transaction);
+                    
+                    // Traitement selon le type de récompense
+                    if (reward.value > 0) {
+                        // Ajouter la valeur aux avoirs
+                        currentUser.balance += reward.value;
+                        
+                        // Sauvegarder le nouveau solde
+                        if (users[currentUser.phone]) {
+                            users[currentUser.phone].balance = currentUser.balance;
+                        }
+                        
+                        // Mettre à jour l'affichage du solde
+                        const balanceElement = document.getElementById('clientBalance');
+                        if (balanceElement) {
+                            balanceElement.textContent = formatCurrency(currentUser.balance);
+                        }
+                        
+                        showNotification(`🎉 ${reward.name} échangé ! +${formatCurrency(reward.value)} d'avoirs ajoutés ! Nouveau solde : ${formatCurrency(currentUser.balance)}`, 'success');
+                        console.log('✅ Avoirs ajoutés:', reward.value, 'Nouveau solde:', currentUser.balance);
+                    } else {
+                        showNotification(`🎫 ${reward.name} activé ! Code promo généré pour votre prochain achat`, 'success');
+                        console.log('✅ Code promo activé');
+                    }
+                    
+                    // Mettre à jour l'affichage des transactions
+                    updateRecentTransactions();
+                    
+                    console.log('✅ Échange terminé - Nouveaux points:', newPoints, 'Nouveau solde:', currentUser.balance);
+                    
+                } catch (error) {
+                    console.error('❌ Erreur lors de l\'échange:', error);
+                    showNotification('Erreur lors de l\'échange. Veuillez réessayer.', 'error');
+                }
+            } else {
+                const pointsNeeded = reward.points - currentPoints;
+                showNotification(`❌ Points insuffisants ! Il vous manque ${pointsNeeded} points pour ${reward.name}. Continuez vos achats !`, 'error');
+                console.log('❌ Points insuffisants - Manque:', pointsNeeded);
+            }
+        }
+
+        function showCreateCredit() {
+            document.getElementById('createCreditModal').classList.remove('hidden');
+        }
+
+        function closeCreateCreditModal() {
+            document.getElementById('createCreditModal').classList.add('hidden');
+            document.getElementById('createCreditForm').reset();
+            document.getElementById('loyaltyPointsSection').classList.add('hidden');
+        }
+
+        function handleCreateCredit(e) {
+            e.preventDefault();
+            
+            const clientPhone = document.getElementById('creditClientPhone').value;
+            const amount = parseInt(document.getElementById('creditAmount').value);
+            const reason = document.getElementById('creditReason').value;
+            const bonusPoints = parseInt(document.getElementById('loyaltyPointsBonus').value) || 0;
+            
+            // Calculer les points fidélité automatiques (1 FCFA = 1 point)
+            const autoPoints = amount;
+            const totalPoints = autoPoints + bonusPoints;
+            
+            // Créer la transaction
+            const transaction = {
+                id: 'tx' + Date.now(),
+                type: reason === 'fidelite' ? 'loyalty_bonus' : 'credit_received',
+                amount: amount,
+                loyaltyPoints: totalPoints,
+                description: `Avoir reçu - ${currentUser.name}`,
+                date: new Date(),
+                status: 'completed',
+                from: currentUser.phone,
+                to: clientPhone,
+                reason: reason
+            };
+            
+            transactions.unshift(transaction);
+            
+            // Mettre à jour l'affichage
+            updateMerchantTransactions();
+            
+            closeCreateCreditModal();
+            
+            let message = `Avoir de ${formatCurrency(amount)} créé pour ${clientPhone} !`;
+            if (totalPoints > 0) {
+                message += ` (+${totalPoints} points fidélité)`;
+            }
+            showNotification(message, 'success');
         }
 
         function showQRScanner() {
             document.getElementById('qrScannerModal').classList.remove('hidden');
-            // Simuler l'accès à la caméra (pas de vraie caméra en démo)
         }
 
         function closeQRScanner() {
@@ -797,26 +1198,25 @@
         }
 
         function simulateQRScan() {
-            // Simuler un scan réussi
-            const amount = 7500;
+            const amount = 75;
             const merchant = '+22512345678';
-            const description = 'Achat restaurant';
+            const description = 'Utilisation avoirs - Épicerie';
             
             closeQRScanner();
             
-            // Confirmer le paiement
-            if (confirm(`Confirmer le paiement de ${formatCurrency(amount)} à ${merchant} pour "${description}" ?`)) {
-                processPayment(amount, merchant, description);
-            }
+            // Utilisation automatique sans popup
+            useCredit(amount, merchant, description);
         }
 
-        function processPayment(amount, merchant, description) {
+        function useCredit(amount, merchant, description) {
             if (currentUser.balance >= amount) {
-                // Créer la transaction
+                const earnedPoints = Math.floor(amount * 0.5); // 0.5 point par FCFA utilisé
+                
                 const transaction = {
                     id: 'tx' + Date.now(),
-                    type: 'payment',
+                    type: 'credit_used',
                     amount: amount,
+                    loyaltyPoints: earnedPoints,
                     description: description,
                     date: new Date(),
                     status: 'completed',
@@ -826,17 +1226,18 @@
                 
                 transactions.unshift(transaction);
                 
-                // Mettre à jour le solde
                 currentUser.balance -= amount;
+                currentUser.loyaltyPoints = (currentUser.loyaltyPoints || loyaltyPoints) + earnedPoints;
                 users[currentUser.phone].balance = currentUser.balance;
+                users[currentUser.phone].loyaltyPoints = currentUser.loyaltyPoints;
                 
-                // Mettre à jour l'affichage
                 document.getElementById('clientBalance').textContent = formatCurrency(currentUser.balance);
+                document.getElementById('loyaltyPoints').textContent = formatNumber(currentUser.loyaltyPoints);
                 updateRecentTransactions();
                 
-                showNotification(`Paiement de ${formatCurrency(amount)} effectué avec succès !`, 'success');
+                showNotification(`${formatCurrency(amount)} d'avoirs utilisés ! +${earnedPoints} points fidélité`, 'success');
             } else {
-                showNotification('Solde insuffisant', 'error');
+                showNotification('Avoirs insuffisants', 'error');
             }
         }
 
@@ -853,14 +1254,14 @@
             e.preventDefault();
             
             const amount = parseInt(document.getElementById('qrAmount').value);
-            const description = document.getElementById('qrDescription').value || 'Paiement';
+            const description = document.getElementById('qrDescription').value || 'Utilisation avoirs';
             
-            // Générer le QR code
             const qrData = JSON.stringify({
                 merchant: currentUser.phone,
-                amount: amount,
+                maxAmount: amount,
                 description: description,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                type: 'credit_usage'
             });
             
             const qrContainer = document.getElementById('qrCodeContainer');
@@ -901,10 +1302,9 @@
             
             const phone = document.getElementById('transferPhone').value;
             const amount = parseInt(document.getElementById('transferAmount').value);
-            const message = document.getElementById('transferMessage').value || 'Transfert';
+            const message = document.getElementById('transferMessage').value || 'Partage d\'avoirs';
             
             if (currentUser.balance >= amount) {
-                // Créer la transaction
                 const transaction = {
                     id: 'tx' + Date.now(),
                     type: 'transfer',
@@ -918,105 +1318,22 @@
                 
                 transactions.unshift(transaction);
                 
-                // Mettre à jour le solde
                 currentUser.balance -= amount;
                 users[currentUser.phone].balance = currentUser.balance;
                 
-                // Mettre à jour l'affichage
                 document.getElementById('clientBalance').textContent = formatCurrency(currentUser.balance);
                 updateRecentTransactions();
                 
                 closeTransferModal();
-                showNotification(`Transfert de ${formatCurrency(amount)} envoyé avec succès !`, 'success');
+                showNotification(`${formatCurrency(amount)} d'avoirs partagés avec succès !`, 'success');
             } else {
-                showNotification('Solde insuffisant', 'error');
+                showNotification('Avoirs insuffisants', 'error');
             }
-        }
-
-        function showBillPayment() {
-            document.getElementById('billPaymentModal').classList.remove('hidden');
-        }
-
-        function closeBillPaymentModal() {
-            document.getElementById('billPaymentModal').classList.add('hidden');
-            document.getElementById('billPaymentForm').reset();
-            // Réinitialiser la sélection
-            document.querySelectorAll('.bill-type-btn').forEach(btn => {
-                btn.classList.remove('border-blue-500', 'bg-blue-50');
-                btn.classList.add('border-gray-200');
-            });
-        }
-
-        function selectBillType(type) {
-            // Réinitialiser tous les boutons
-            document.querySelectorAll('.bill-type-btn').forEach(btn => {
-                btn.classList.remove('border-blue-500', 'bg-blue-50');
-                btn.classList.add('border-gray-200');
-            });
-            
-            // Sélectionner le bouton cliqué
-            const selectedBtn = document.querySelector(`[data-type="${type}"]`);
-            selectedBtn.classList.remove('border-gray-200');
-            selectedBtn.classList.add('border-blue-500', 'bg-blue-50');
-        }
-
-        function handleBillPayment(e) {
-            e.preventDefault();
-            
-            const meterNumber = document.getElementById('meterNumber').value;
-            const amount = parseInt(document.getElementById('billAmount').value);
-            const selectedType = document.querySelector('.bill-type-btn.border-blue-500');
-            
-            if (!selectedType) {
-                showNotification('Veuillez sélectionner le type de facture', 'error');
-                return;
-            }
-            
-            const billType = selectedType.dataset.type;
-            const billName = billType === 'electricity' ? 'Facture électricité' : 'Facture eau';
-            
-            if (currentUser.balance >= amount) {
-                // Créer la transaction
-                const transaction = {
-                    id: 'tx' + Date.now(),
-                    type: 'bill',
-                    amount: amount,
-                    description: `${billName} - ${meterNumber}`,
-                    date: new Date(),
-                    status: 'completed',
-                    from: currentUser.phone,
-                    to: billType === 'electricity' ? 'SEEG' : 'SEEG-EAU'
-                };
-                
-                transactions.unshift(transaction);
-                
-                // Mettre à jour le solde
-                currentUser.balance -= amount;
-                users[currentUser.phone].balance = currentUser.balance;
-                
-                // Mettre à jour l'affichage
-                document.getElementById('clientBalance').textContent = formatCurrency(currentUser.balance);
-                updateRecentTransactions();
-                
-                closeBillPaymentModal();
-                showNotification(`${billName} payée avec succès !`, 'success');
-            } else {
-                showNotification('Solde insuffisant', 'error');
-            }
-        }
-
-        function showTopUp() {
-            showNotification('Service de crédit téléphonique bientôt disponible', 'info');
         }
 
         function showHistory() {
             document.getElementById('historyModal').classList.remove('hidden');
             displayFullHistory();
-        }
-
-        function showMerchantHistory() {
-            document.getElementById('historyModal').classList.remove('hidden');
-            displayMerchantHistory();
         }
 
         function closeHistoryModal() {
@@ -1030,10 +1347,11 @@
             );
             
             container.innerHTML = userTransactions.map(transaction => {
-                const isOutgoing = transaction.from === currentUser.phone;
+                const isReceived = transaction.to === currentUser.phone;
                 const icon = getTransactionIcon(transaction.type);
-                const color = isOutgoing ? 'text-red-600' : 'text-green-600';
-                const sign = isOutgoing ? '-' : '+';
+                const color = isReceived ? 'text-green-600' : 'text-blue-600';
+                const sign = isReceived ? '+' : '-';
+                const loyaltyInfo = transaction.loyaltyPoints ? `<p class="text-xs text-yellow-600">+${transaction.loyaltyPoints} pts fidélité</p>` : '';
                 
                 return `
                     <div class="transaction-item flex items-center justify-between p-4 rounded-lg border border-gray-100">
@@ -1043,53 +1361,43 @@
                             </div>
                             <div>
                                 <p class="font-medium text-gray-800">${transaction.description}</p>
-                                <p class="text-sm text-gray-500">${isOutgoing ? 'Vers ' + transaction.to : 'De ' + transaction.from}</p>
+                                <p class="text-sm text-gray-500">${isReceived ? 'De ' + transaction.from : 'Vers ' + transaction.to}</p>
                                 <p class="text-xs text-gray-400">${formatDate(transaction.date)}</p>
+                                ${loyaltyInfo}
                             </div>
                         </div>
                         <div class="text-right">
                             <p class="font-semibold ${color}">${sign}${formatCurrency(transaction.amount)}</p>
-                            <p class="text-xs text-gray-500">${transaction.status === 'completed' ? 'Terminé' : 'En cours'}</p>
+                            <p class="text-xs text-gray-500">${isReceived ? 'Reçu' : 'Utilisé'}</p>
                         </div>
                     </div>
                 `;
             }).join('');
             
             if (userTransactions.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-8">Aucune transaction trouvée</p>';
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">Aucun avoir trouvé</p>';
             }
         }
 
-        function displayMerchantHistory() {
-            const container = document.getElementById('transactionHistory');
-            const merchantTransactions = transactions.filter(t => t.to === currentUser.phone);
+        function quickLogin(type) {
+            console.log('=== CONNEXION RAPIDE ===');
+            console.log('Type demandé:', type);
             
-            container.innerHTML = merchantTransactions.map(transaction => {
-                const icon = getTransactionIcon(transaction.type);
-                
-                return `
-                    <div class="transaction-item flex items-center justify-between p-4 rounded-lg border border-gray-100">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                                ${icon}
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-800">${transaction.description}</p>
-                                <p class="text-sm text-gray-500">De ${transaction.from}</p>
-                                <p class="text-xs text-gray-400">${formatDate(transaction.date)}</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-semibold text-green-600">+${formatCurrency(transaction.amount)}</p>
-                            <p class="text-xs text-gray-500">Reçu</p>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            if (merchantTransactions.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-8">Aucune vente trouvée</p>';
+            if (type === 'client') {
+                document.getElementById('phoneNumber').value = '+22501234567';
+                document.getElementById('pinCode').value = '123456';
+                console.log('Données client remplies');
+            } else if (type === 'merchant') {
+                document.getElementById('phoneNumber').value = '+22512345678';
+                document.getElementById('pinCode').value = 'admin123';
+                console.log('Données commerçant remplies');
             }
+            
+            // Déclencher la connexion automatiquement après un petit délai
+            setTimeout(() => {
+                console.log('Déclenchement du formulaire...');
+                handleLogin({ preventDefault: () => {} });
+            }, 200);
         }
 
         function logout() {
@@ -1098,9 +1406,7 @@
             document.getElementById('clientDashboard').classList.add('hidden');
             document.getElementById('merchantDashboard').classList.add('hidden');
             
-            // Réinitialiser le formulaire
             document.getElementById('loginForm').reset();
-            
             showNotification('Déconnexion réussie', 'success');
         }
 
@@ -1110,7 +1416,6 @@
             
             notificationText.textContent = message;
             
-            // Changer la couleur selon le type
             notification.className = 'notification';
             if (type === 'success') {
                 notification.classList.add('bg-green-500');
@@ -1122,7 +1427,6 @@
             
             notification.classList.add('show');
             
-            // Masquer automatiquement après 3 secondes
             setTimeout(() => {
                 hideNotification();
             }, 3000);
@@ -1134,6 +1438,10 @@
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
+        }
+
+        function formatNumber(number) {
+            return new Intl.NumberFormat('fr-FR').format(number);
         }
 
         function formatDate(date) {
@@ -1155,5 +1463,5 @@
             });
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98000bae41205352',t:'MTc1ODAyMjM3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'986baa5687ac65a1',t:'MTc1OTE1MDg0Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
